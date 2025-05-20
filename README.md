@@ -5,8 +5,8 @@
 1. **Clone the repository:**
 
    ```
-   git clone <repository-url>
-   cd events-api
+   git clone https://github.com/smlbrd/event-horizon-api.git
+   cd event-horizon-api
    ```
 
 2. **Install dependencies:**
