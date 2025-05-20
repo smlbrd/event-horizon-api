@@ -1,0 +1,59 @@
+{
+  "GET /api": {
+    "description": "Serves a JSON representation of all the available endpoints of the API"
+  },
+  "POST /api/users": {
+    "description": "Creates a new user. The role is always set to 'user' on creation.",
+    "body": {
+      "username": "string",
+      "password": "string",
+      "email": "string",
+      "name": "string"
+    },
+    "exampleResponse": {
+      "id": 2,
+      "username": "newuser",
+      "email": "newuser@example.com",
+      "name": "New User",
+      "role": "user"
+    }
+  },
+  "GET /api/users/:id": {
+    "description": "Returns a user by their ID",
+    "params": {
+      "id": "integer"
+    },
+    "exampleResponse": {
+      "id": 1,
+      "username": "dr_mensah",
+      "email": "mensah@preservationaux.com",
+      "name": "Dr. Ayda Mensah",
+      "role": "admin"
+    }
+  },
+  "PATCH /api/users/:id": {
+    "description": "Updates a user's email, name, or role",
+    "params": {
+      "id": "integer"
+    },
+    "body": {
+      "email": "string (optional)",
+      "name": "string (optional)",
+      "role": "string (optional, 'admin' | 'staff' | 'user')"
+    },
+    "exampleResponse": {
+      "id": 1,
+      "username": "dr_mensah",
+      "email": "updated@example.com",
+      "name": "Updated Name",
+      "role": "staff"
+    }
+  },
+  "DELETE /api/users/:id": {
+    "description": "Deletes a user by their ID",
+    "params": {
+      "id": "integer"
+    },
+    "exampleResponse": {}
+  }
+}
