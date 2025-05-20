@@ -37,7 +37,7 @@ jobs:
 
       - name: Set up test environment
         run: |
-          cp .env.test.example .env.test
+          cp .env.test
 
       - name: Run tests
         env:
