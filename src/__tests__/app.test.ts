@@ -349,6 +349,28 @@ describe('Event API', () => {
       updateRes.body.start_time.should.equal('2025-08-01T14:00:00.000Z');
       updateRes.body.end_time.should.equal('2025-08-01T16:00:00.000Z');
     });
+
+    it('should delete an existing event', async () => {
+      const newEvent = {
+        title: 'Delete Me',
+        description: 'This event will be deleted',
+        location: 'Delete Location',
+        price: 50.0,
+        start_time: '2025-08-01T10:00:00.000Z',
+        end_time: '2025-08-01T12:00:00.000Z',
+      };
+
+      const createRes = await request(app)
+        .post('/api/events')
+        .send(newEvent)
+        .expect(201);
+
+      const eventId = createRes.body.id;
+
+      await request(app).delete(`/api/events/${eventId}`).expect(204);
+
+      await request(app).get(`/api/events/${eventId}`).expect(404);
+    });
   });
 
   describe('Event API error cases', () => {
