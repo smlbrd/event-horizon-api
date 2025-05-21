@@ -2,7 +2,9 @@ import chai, { expect } from 'chai';
 import request from 'supertest';
 import app from '../app';
 import db from '../db/connection';
-import seedUsers from '../db/seed';
+import seed from '../db/seed';
+import { userTestData } from '../db/testData/userTestData';
+import { eventTestData } from '../db/testData/eventTestData';
 import endpoints from '../../endpoints.json';
 import {
   serverErrorHandler,
@@ -11,12 +13,12 @@ import {
 
 chai.should();
 
-beforeEach(async () => {
-  await seedUsers();
-});
-
 after(async () => {
   await db.end();
+});
+
+beforeEach(async () => {
+  await seed({ userData: userTestData, eventData: eventTestData });
 });
 
 describe('Endpoints API', () => {
@@ -251,8 +253,13 @@ describe('Event API', () => {
   describe('Event creation and retrieval', () => {
     it('should retrieve all existing events', async () => {
       const res = await request(app).get('/api/events').expect(200);
+
       res.body.should.be.an('array');
       res.body.length.should.be.greaterThan(0);
+      res.body[0].should.have.property('id');
+      res.body[0].id.should.equal(1);
+      res.body[2].should.have.property('title');
+      res.body[2].title.should.equal('Planetary Survey');
     });
   });
 });
