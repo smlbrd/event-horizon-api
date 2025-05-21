@@ -1,5 +1,5 @@
 import db from '../db/connection';
-import { Event } from '../types/Event';
+import { Event, EventInput } from '../types/Event';
 
 export const eventModel = {
   async getEvents(): Promise<Event[]> {
@@ -22,6 +22,21 @@ export const eventModel = {
     return {
       ...result.rows[0],
       price: Number(result.rows[0].price),
+    };
+  },
+
+  async addEvent(event: EventInput): Promise<Event> {
+    const { title, description, location, price, start_time, end_time } = event;
+    const result = await db.query(
+      `INSERT INTO events (title, description, location, price, start_time, end_time)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, title, description, location, price, start_time, end_time`,
+      [title, description, location, price, start_time, end_time]
+    );
+    const row = result.rows[0];
+    return {
+      ...row,
+      price: Number(row.price),
     };
   },
 };
