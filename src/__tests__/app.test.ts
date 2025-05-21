@@ -96,7 +96,7 @@ describe('User API', () => {
   });
 
   describe('User API update and delete', () => {
-    it('should update a user', async () => {
+    it('should update an existing user', async () => {
       const newUser = {
         username: 'update_me',
         password: 'password',
@@ -128,7 +128,7 @@ describe('User API', () => {
       });
     });
 
-    it('should delete a user', async () => {
+    it('should delete an existing user', async () => {
       const newUser = {
         username: 'delete_me',
         password: 'password',
@@ -298,6 +298,56 @@ describe('Event API', () => {
       res.body.price.should.equal(newEvent.price);
       res.body.start_time.should.equal(newEvent.start_time);
       res.body.end_time.should.equal(newEvent.end_time);
+    });
+  });
+
+  describe('Event API update and delete', () => {
+    it('should update an existing event', async () => {
+      const newEvent = {
+        title: 'Update Me',
+        description: 'This event will be updated',
+        location: 'Update Location',
+        price: 50.0,
+        start_time: '2025-08-01T10:00:00.000Z',
+        end_time: '2025-08-01T12:00:00.000Z',
+      };
+
+      const createRes = await request(app)
+        .post('/api/events')
+        .send(newEvent)
+        .expect(201);
+
+      const eventId = createRes.body.id;
+
+      const updatedFields = {
+        title: 'Updated Event',
+        description: 'This event has been updated',
+        location: 'Updated Location',
+        price: 75.0,
+        start_time: '2025-08-01T14:00:00.000Z',
+        end_time: '2025-08-01T16:00:00.000Z',
+      };
+
+      const updateRes = await request(app)
+        .patch(`/api/events/${eventId}`)
+        .send(updatedFields)
+        .expect(200);
+
+      updateRes.body.should.include({
+        id: eventId,
+        title: updatedFields.title,
+        description: updatedFields.description,
+        location: updatedFields.location,
+        price: updatedFields.price,
+        start_time: updatedFields.start_time,
+        end_time: updatedFields.end_time,
+      });
+      updateRes.body.title.should.equal('Updated Event');
+      updateRes.body.description.should.equal('This event has been updated');
+      updateRes.body.location.should.equal('Updated Location');
+      updateRes.body.price.should.equal(75);
+      updateRes.body.start_time.should.equal('2025-08-01T14:00:00.000Z');
+      updateRes.body.end_time.should.equal('2025-08-01T16:00:00.000Z');
     });
   });
 
