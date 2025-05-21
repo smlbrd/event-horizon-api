@@ -54,17 +54,16 @@ export const eventModel = {
       >
     >
   ): Promise<Event | undefined> {
+    const keys = Object.keys(fields);
+    if (keys.length === 0) return this.getEventById(id);
+
+    const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+    const values = keys.map((key) => (fields as any)[key]);
+    values.push(id);
+
     const result = await db.query(
-      `UPDATE events SET title = $1, description = $2, location = $3, price = $4, start_time = $5, end_time = $6 WHERE id = $7 RETURNING id, title, description, location, price, start_time, end_time`,
-      [
-        fields.title,
-        fields.description,
-        fields.location,
-        fields.price,
-        fields.start_time,
-        fields.end_time,
-        id,
-      ]
+      `UPDATE events SET ${setClause} WHERE id = $${values.length} RETURNING id, title, description, location, price, start_time, end_time`,
+      values
     );
     if (!result.rows[0]) return undefined;
     const row = result.rows[0];
@@ -72,5 +71,13 @@ export const eventModel = {
       ...row,
       price: Number(row.price),
     };
+  },
+
+  async deleteEvent(id: number): Promise<boolean> {
+    const result = await db.query(
+      'DELETE FROM events WHERE id = $1 RETURNING id',
+      [id]
+    );
+    return !!result.rows[0];
   },
 };

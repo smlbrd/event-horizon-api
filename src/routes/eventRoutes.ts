@@ -4,6 +4,7 @@ import {
   getEventDetails,
   createEvent,
   updateEvent,
+  deleteEvent,
 } from '../controllers/eventController';
 import { eventModel } from '../models/eventModel';
 
@@ -13,5 +14,6 @@ router.get('/', getEvents(eventModel));
 router.get('/:id', getEventDetails(eventModel));
 router.post('/', createEvent(eventModel));
 router.patch('/:id', updateEvent(eventModel));
+router.delete('/:id', deleteEvent(eventModel));
 
 export default router;

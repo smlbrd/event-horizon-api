@@ -71,32 +71,19 @@ export const createEvent =
 export const updateEvent =
   (eventModel: any) =>
   async (
-    req: Request<{ id: string }, {}, EventInput>,
+    req: Request<{ id: string }, {}, Partial<EventInput>>,
     res: Response,
     next: NextFunction
   ) => {
     const { id } = req.params;
-    const { title, description, location, price, start_time, end_time } =
-      req.body;
-    if (
-      !title ||
-      !description ||
-      !location ||
-      !price ||
-      !start_time ||
-      !end_time
-    ) {
-      return res.status(400).json({ message: 'Missing required event fields' });
+    const fields = req.body;
+
+    if (!fields || Object.keys(fields).length === 0) {
+      return res.status(400).json({ message: 'No fields provided for update' });
     }
+
     try {
-      const updatedEvent = await eventModel.updateEvent(Number(id), {
-        title,
-        description,
-        location,
-        price,
-        start_time,
-        end_time,
-      });
+      const updatedEvent = await eventModel.updateEvent(Number(id), fields);
       if (updatedEvent) {
         res.status(200).json(updatedEvent);
       } else {
@@ -106,5 +93,22 @@ export const updateEvent =
       res
         .status(500)
         .json({ message: 'Error updating event', error: error.message });
+    }
+  };
+
+export const deleteEvent =
+  (eventModel: any) =>
+  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+      const deleted = await eventModel.deleteEvent(Number(id));
+      if (!deleted) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ message: 'Error deleting event', error: error.message });
     }
   };

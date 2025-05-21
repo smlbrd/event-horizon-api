@@ -374,7 +374,7 @@ describe('Event API', () => {
   });
 
   describe('Event API error cases', () => {
-    it('should return 404 for a non-existing event', async () => {
+    it('should return 404 when fetching a non-existing event', async () => {
       const nonExistingEventId = 999;
 
       const res = await request(app)
@@ -384,7 +384,18 @@ describe('Event API', () => {
       res.body.should.have.property('message', 'Event not found');
     });
 
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 404 when updating a non-existent event', async () => {
+      const updateRes = await request(app)
+        .patch('/api/events/99999')
+        .send({ title: 'No One' })
+        .expect(404);
+    });
+
+    it('should return 404 when deleting a non-existent event', async () => {
+      await request(app).delete('/api/events/99999').expect(404);
+    });
+
+    it('should return 400 when creating an event if required fields are missing', async () => {
       const incompleteEvent = {
         title: 'Incomplete Event',
         description: 'This event is missing required fields',
@@ -399,6 +410,15 @@ describe('Event API', () => {
         .expect(400);
 
       res.body.should.have.property('message', 'Missing required event fields');
+    });
+
+    it('should return 400 when updating an event if no fields are provided', async () => {
+      const res = await request(app)
+        .patch('/api/events/1')
+        .send({})
+        .expect(400);
+
+      res.body.should.have.property('message', 'No fields provided for update');
     });
   });
 });
