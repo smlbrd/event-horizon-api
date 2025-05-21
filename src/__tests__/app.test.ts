@@ -275,6 +275,30 @@ describe('Event API', () => {
       res.body.start_time.should.equal('2025-07-01T08:00:00.000Z');
       res.body.end_time.should.equal('2025-07-01T16:00:00.000Z');
     });
+
+    it('should create a new event', async () => {
+      const newEvent = {
+        title: 'New Event',
+        description: 'This is a new event',
+        location: 'New Location',
+        price: 100.0,
+        start_time: '2025-08-01T08:00:00.000Z',
+        end_time: '2025-08-01T16:00:00.000Z',
+      };
+
+      const res = await request(app)
+        .post('/api/events')
+        .send(newEvent)
+        .expect(201);
+
+      res.body.should.have.property('id');
+      res.body.title.should.equal(newEvent.title);
+      res.body.description.should.equal(newEvent.description);
+      res.body.location.should.equal(newEvent.location);
+      res.body.price.should.equal(newEvent.price);
+      res.body.start_time.should.equal(newEvent.start_time);
+      res.body.end_time.should.equal(newEvent.end_time);
+    });
   });
 
   describe('Event API error cases', () => {
