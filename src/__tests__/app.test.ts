@@ -272,8 +272,8 @@ describe('Event API', () => {
       res.body.description.should.equal("We're off this planet!");
       res.body.location.should.equal('Mining Station Aratake');
       res.body.price.should.equal(0);
-      res.body.start_time.should.equal('2025-07-01T08:00:00.000Z');
-      res.body.end_time.should.equal('2025-07-01T16:00:00.000Z');
+      res.body.start_time.should.equal('2025-07-01T20:00:00.000Z');
+      res.body.end_time.should.equal('2025-07-01T23:00:00.000Z');
     });
 
     it('should create a new event', async () => {
@@ -282,8 +282,8 @@ describe('Event API', () => {
         description: 'This is a new event',
         location: 'New Location',
         price: 100.0,
-        start_time: '2025-08-01T08:00:00.000Z',
-        end_time: '2025-08-01T16:00:00.000Z',
+        start_time: '2025-08-01T10:00:00.000Z',
+        end_time: '2025-08-01T12:00:00.000Z',
       };
 
       const res = await request(app)
@@ -310,6 +310,23 @@ describe('Event API', () => {
         .expect(404);
 
       res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 400 if required fields are missing', async () => {
+      const incompleteEvent = {
+        title: 'Incomplete Event',
+        description: 'This event is missing required fields',
+        location: 'Somewhere',
+        price: 50.0,
+        start_time: '2025-08-01T10:00:00.000Z',
+      };
+
+      const res = await request(app)
+        .post('/api/events')
+        .send(incompleteEvent)
+        .expect(400);
+
+      res.body.should.have.property('message', 'Missing required event fields');
     });
   });
 });
