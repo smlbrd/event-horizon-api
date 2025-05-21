@@ -267,13 +267,13 @@ describe('Event API', () => {
 
       const res = await request(app).get(`/api/events/${eventId}`).expect(200);
 
-      res.body.should.have.property('id', eventId);
-      res.body.should.have.property('title');
-      res.body.should.have.property('description');
-      res.body.should.have.property('location');
-      res.body.should.have.property('price');
-      res.body.should.have.property('start_time');
-      res.body.should.have.property('end_time');
+      res.body.id.should.equal(1);
+      res.body.title.should.equal('Labour Contract Conclusion Party');
+      res.body.description.should.equal("We're off this planet!");
+      res.body.location.should.equal('Mining Station Aratake');
+      res.body.price.should.equal(0);
+      res.body.start_time.should.equal('2025-07-01T08:00:00.000Z');
+      res.body.end_time.should.equal('2025-07-01T16:00:00.000Z');
     });
   });
 });
