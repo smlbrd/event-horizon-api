@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import e, { Request, Response, NextFunction } from 'express';
 import { EventInput } from '../types/Event';
 
 export const getEvents =
@@ -65,5 +65,46 @@ export const createEvent =
       res
         .status(500)
         .json({ message: 'Error creating event', error: error.message });
+    }
+  };
+
+export const updateEvent =
+  (eventModel: any) =>
+  async (
+    req: Request<{ id: string }, {}, EventInput>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { id } = req.params;
+    const { title, description, location, price, start_time, end_time } =
+      req.body;
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !price ||
+      !start_time ||
+      !end_time
+    ) {
+      return res.status(400).json({ message: 'Missing required event fields' });
+    }
+    try {
+      const updatedEvent = await eventModel.updateEvent(Number(id), {
+        title,
+        description,
+        location,
+        price,
+        start_time,
+        end_time,
+      });
+      if (updatedEvent) {
+        res.status(200).json(updatedEvent);
+      } else {
+        res.status(404).json({ message: 'Event not found' });
+      }
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ message: 'Error updating event', error: error.message });
     }
   };

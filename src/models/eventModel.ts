@@ -39,4 +39,38 @@ export const eventModel = {
       price: Number(row.price),
     };
   },
+
+  async updateEvent(
+    id: number,
+    fields: Partial<
+      Pick<
+        Event,
+        | 'title'
+        | 'description'
+        | 'location'
+        | 'price'
+        | 'start_time'
+        | 'end_time'
+      >
+    >
+  ): Promise<Event | undefined> {
+    const result = await db.query(
+      `UPDATE events SET title = $1, description = $2, location = $3, price = $4, start_time = $5, end_time = $6 WHERE id = $7 RETURNING id, title, description, location, price, start_time, end_time`,
+      [
+        fields.title,
+        fields.description,
+        fields.location,
+        fields.price,
+        fields.start_time,
+        fields.end_time,
+        id,
+      ]
+    );
+    if (!result.rows[0]) return undefined;
+    const row = result.rows[0];
+    return {
+      ...row,
+      price: Number(row.price),
+    };
+  },
 };
