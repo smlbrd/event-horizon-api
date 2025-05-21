@@ -1,4 +1,4 @@
-import e, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { EventInput } from '../types/Event';
 
 export const getEvents =
@@ -45,7 +45,7 @@ export const createEvent =
       !title ||
       !description ||
       !location ||
-      !price ||
+      price === null ||
       !start_time ||
       !end_time
     ) {
