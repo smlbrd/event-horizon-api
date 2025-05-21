@@ -3,6 +3,7 @@ import request from 'supertest';
 import app from '../app';
 import db from '../db/connection';
 import seedUsers from '../db/seed';
+import endpoints from '../../endpoints.json';
 import {
   serverErrorHandler,
   notFoundErrorHandler,
@@ -10,15 +11,30 @@ import {
 
 chai.should();
 
+beforeEach(async () => {
+  await seedUsers();
+});
+
+after(async () => {
+  await db.end();
+});
+
+describe('Endpoints API', () => {
+  it('should return 200 OK for the health check endpoint', async () => {
+    const res = await request(app).get('/api').expect(200);
+    res.body.should.have.property('endpoints');
+    res.body.endpoints.should.deep.equal(endpoints);
+  });
+
+  it('should return 404 for non-existing endpoints', async () => {
+    const res = await request(app)
+      .get('/api/non-existing-endpoint')
+      .expect(404);
+    res.body.should.have.property('message').which.equals('Not Found');
+  });
+});
+
 describe('User API', () => {
-  beforeEach(async () => {
-    await seedUsers();
-  });
-
-  after(async () => {
-    await db.end();
-  });
-
   describe('User creation and retrieval', () => {
     it('should create a user', async () => {
       const newUser = {
@@ -50,32 +66,30 @@ describe('User API', () => {
         role: 'user',
       };
 
-      const response = await request(app)
+      const res = await request(app)
         .post('/api/users')
         .send(newUser)
         .expect(201);
 
-      response.body.should.have.property('id');
-      response.body.username.should.equal(newUser.username);
-      response.body.email.should.equal(newUser.email);
-      response.body.name.should.equal(newUser.name);
-      response.body.role.should.equal(newUser.role);
-      response.body.should.not.have.property('hashed_password');
+      res.body.should.have.property('id');
+      res.body.username.should.equal(newUser.username);
+      res.body.email.should.equal(newUser.email);
+      res.body.name.should.equal(newUser.name);
+      res.body.role.should.equal(newUser.role);
+      res.body.should.not.have.property('hashed_password');
     });
 
     it('should retrieve an existing user', async () => {
       const userId = 1;
 
-      const response = await request(app)
-        .get(`/api/users/${userId}`)
-        .expect(200);
+      const res = await request(app).get(`/api/users/${userId}`).expect(200);
 
-      response.body.should.have.property('id', userId);
-      response.body.should.have.property('username');
-      response.body.should.have.property('email');
-      response.body.should.have.property('name');
-      response.body.should.have.property('role');
-      response.body.should.not.have.property('hashed_password');
+      res.body.should.have.property('id', userId);
+      res.body.should.have.property('username');
+      res.body.should.have.property('email');
+      res.body.should.have.property('name');
+      res.body.should.have.property('role');
+      res.body.should.not.have.property('hashed_password');
     });
   });
 
@@ -145,11 +159,11 @@ describe('User API', () => {
     it('should return 404 for a non-existing user', async () => {
       const nonExistingUserId = 999;
 
-      const response = await request(app)
+      const res = await request(app)
         .get(`/api/users/${nonExistingUserId}`)
         .expect(404);
 
-      response.body.should.have.property('message', 'User not found');
+      res.body.should.have.property('message', 'User not found');
     });
 
     it('should return 400 if required fields are missing', async () => {
@@ -229,6 +243,16 @@ describe('User API', () => {
         .expect(201);
 
       res.body.role.should.equal('user');
+    });
+  });
+});
+
+describe('Event API', () => {
+  describe('Event creation and retrieval', () => {
+    it('should retrieve all existing events', async () => {
+      const res = await request(app).get('/api/events').expect(200);
+      res.body.should.be.an('array');
+      res.body.length.should.be.greaterThan(0);
     });
   });
 });
