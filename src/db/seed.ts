@@ -30,8 +30,8 @@ async function seed({
         description TEXT NOT NULL,
         location VARCHAR(255) NOT NULL,
         price NUMERIC NOT NULL,
-        start_time TIMESTAMP NOT NULL,
-        end_time TIMESTAMP NOT NULL
+        start_time TIMESTAMPTZ NOT NULL,
+        end_time TIMESTAMPTZ NOT NULL
       );
     `);
 
