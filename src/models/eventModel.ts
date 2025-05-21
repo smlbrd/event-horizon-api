@@ -6,6 +6,21 @@ export const eventModel = {
     const result = await db.query(
       'SELECT id, title, description, location, price, start_time, end_time FROM events'
     );
-    return result.rows;
+    return result.rows.map((row) => ({
+      ...row,
+      price: Number(row.price),
+    }));
+  },
+
+  async getEventById(id: number): Promise<Event> {
+    const result = await db.query(
+      'SELECT id, title, description, location, price, start_time, end_time FROM events WHERE id = $1',
+      [id]
+    );
+    console.log(new Date(result.rows[0].start_time).toISOString());
+    return {
+      ...result.rows[0],
+      price: Number(result.rows[0].price),
+    };
   },
 };
