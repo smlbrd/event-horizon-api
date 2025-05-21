@@ -261,6 +261,20 @@ describe('Event API', () => {
       res.body[2].should.have.property('title');
       res.body[2].title.should.equal('Planetary Survey');
     });
+
+    it('should retrieve an existing event', async () => {
+      const eventId = 1;
+
+      const res = await request(app).get(`/api/events/${eventId}`).expect(200);
+
+      res.body.should.have.property('id', eventId);
+      res.body.should.have.property('title');
+      res.body.should.have.property('description');
+      res.body.should.have.property('location');
+      res.body.should.have.property('price');
+      res.body.should.have.property('start_time');
+      res.body.should.have.property('end_time');
+    });
   });
 });
 
