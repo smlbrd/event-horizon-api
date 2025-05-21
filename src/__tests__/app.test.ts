@@ -21,8 +21,8 @@ beforeEach(async () => {
   await seed({ userData: userTestData, eventData: eventTestData });
 });
 
-describe('Endpoints API', () => {
-  it('should return 200 OK for the health check endpoint', async () => {
+describe('General API', () => {
+  it('should return 200 OK with endpoints details', async () => {
     const res = await request(app).get('/api').expect(200);
     res.body.should.have.property('endpoints');
     res.body.endpoints.should.deep.equal(endpoints);
@@ -128,15 +128,6 @@ describe('User API', () => {
       });
     });
 
-    it('should return 404 when updating a non-existent user', async () => {
-      const updateRes = await request(app)
-        .patch('/api/users/99999')
-        .send({ name: 'No One' })
-        .expect(404);
-
-      updateRes.body.should.have.property('message', 'User not found');
-    });
-
     it('should delete a user', async () => {
       const newUser = {
         username: 'delete_me',
@@ -166,6 +157,19 @@ describe('User API', () => {
         .expect(404);
 
       res.body.should.have.property('message', 'User not found');
+    });
+
+    it('should return 404 when updating a non-existent user', async () => {
+      const updateRes = await request(app)
+        .patch('/api/users/99999')
+        .send({ name: 'No One' })
+        .expect(404);
+
+      updateRes.body.should.have.property('message', 'User not found');
+    });
+
+    it('should return 404 when deleting a non-existent user', async () => {
+      await request(app).delete('/api/users/99999').expect(404);
     });
 
     it('should return 400 if required fields are missing', async () => {
@@ -199,10 +203,6 @@ describe('User API', () => {
         .expect(409);
 
       res.body.should.have.property('message');
-    });
-
-    it('should return 404 when deleting a non-existent user', async () => {
-      await request(app).delete('/api/users/99999').expect(404);
     });
   });
 
