@@ -276,6 +276,18 @@ describe('Event API', () => {
       res.body.end_time.should.equal('2025-07-01T16:00:00.000Z');
     });
   });
+
+  describe('Event API error cases', () => {
+    it('should return 404 for a non-existing event', async () => {
+      const nonExistingEventId = 999;
+
+      const res = await request(app)
+        .get(`/api/events/${nonExistingEventId}`)
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+  });
 });
 
 describe('errorHandler middleware', () => {
