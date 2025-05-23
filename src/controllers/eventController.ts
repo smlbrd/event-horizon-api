@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { EventInput } from '../types/Event';
+import { EventModel } from '../types/EventModel';
 
 export const getEvents =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const events = await eventModel.getEvents();
@@ -15,17 +16,16 @@ export const getEvents =
   };
 
 export const getEventDetails =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
       const event = await eventModel.getEventById(Number(id));
-      if (event) {
-        res.status(200).json(event);
-      } else {
-        res.status(404).json({ message: 'Event not found' });
-      }
+      res.status(200).json(event);
     } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
       res
         .status(500)
         .json({ message: 'Error retrieving event', error: error.message });
@@ -33,7 +33,7 @@ export const getEventDetails =
   };
 
 export const createEvent =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (
     req: Request<{}, {}, EventInput>,
     res: Response,
@@ -46,6 +46,7 @@ export const createEvent =
       !description ||
       !location ||
       price === null ||
+      price === undefined ||
       !start_time ||
       !end_time
     ) {
@@ -62,6 +63,9 @@ export const createEvent =
       });
       res.status(201).json(event);
     } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
       res
         .status(500)
         .json({ message: 'Error creating event', error: error.message });
@@ -69,7 +73,7 @@ export const createEvent =
   };
 
 export const updateEvent =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (
     req: Request<{ id: string }, {}, Partial<EventInput>>,
     res: Response,
@@ -84,12 +88,11 @@ export const updateEvent =
 
     try {
       const updatedEvent = await eventModel.updateEvent(Number(id), fields);
-      if (updatedEvent) {
-        res.status(200).json(updatedEvent);
-      } else {
-        res.status(404).json({ message: 'Event not found' });
-      }
+      res.status(200).json(updatedEvent);
     } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
       res
         .status(500)
         .json({ message: 'Error updating event', error: error.message });
@@ -97,18 +100,49 @@ export const updateEvent =
   };
 
 export const deleteEvent =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-      const deleted = await eventModel.deleteEvent(Number(id));
-      if (!deleted) {
-        return res.status(404).json({ message: 'Event not found' });
-      }
+      await eventModel.deleteEvent(Number(id));
       res.status(204).send();
     } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
       res
         .status(500)
         .json({ message: 'Error deleting event', error: error.message });
+    }
+  };
+
+export const addAttendee =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<{ id: string }, {}, { user_id: number; status: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const event_id = Number(req.params.id);
+    const { user_id, status } = req.body;
+
+    if (user_id === undefined || status === undefined) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    try {
+      const attendee = await eventModel.addAttendee({
+        user_id,
+        event_id,
+        status,
+      });
+      res.status(201).json(attendee);
+    } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      res
+        .status(500)
+        .json({ message: 'Error adding attendee', error: error.message });
     }
   };

@@ -1,16 +1,18 @@
 import chai, { expect } from 'chai';
 import request from 'supertest';
-import app from '../app';
 import db from '../db/connection';
 import seed from '../db/seed';
 import { userTestData } from '../db/testData/userTestData';
 import { eventTestData } from '../db/testData/eventTestData';
+import { attendeeTestData } from '../db/testData/attendeeTestData';
 import endpoints from '../../endpoints.json';
+import app from '../app';
+import { makeError } from '../utils/makeError';
+import { checkExists } from '../utils/checkExists';
 import {
   serverErrorHandler,
   notFoundErrorHandler,
 } from '../middleware/errorHandler';
-import { attendeeTestData } from '../db/testData/attendeeTestData';
 
 chai.should();
 
@@ -23,6 +25,28 @@ beforeEach(async () => {
     userData: userTestData,
     eventData: eventTestData,
     attendeeData: attendeeTestData,
+  });
+});
+
+describe('Utility Functions', () => {
+  describe('makeError', () => {
+    it('should create an error with the given message and status', () => {
+      const error = makeError('Test Error', 400);
+      expect(error).to.have.property('message', 'Test Error');
+      expect(error).to.have.property('status', 400);
+    });
+  });
+
+  describe('checkExists', () => {
+    it('should return true if the record exists', async () => {
+      const exists = await checkExists('users', 1);
+      expect(exists).to.be.true;
+    });
+
+    it('should return false if the record does not exist', async () => {
+      const exists = await checkExists('users', 99999);
+      expect(exists).to.be.false;
+    });
   });
 });
 
@@ -469,9 +493,72 @@ describe('Attendee API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.user_id.should.equal(newAttendee.user_id);
-      res.body.event_id.should.equal(newAttendee.event_id);
-      res.body.status.should.equal(newAttendee.status);
+      res.body.user_id.should.equal(1);
+      res.body.event_id.should.equal(event_id);
+      res.body.status.should.equal('attending');
+    });
+  });
+
+  describe('Attendee API update and delete', () => {});
+
+  describe('Attendee API error cases', () => {
+    it('should return 404 when adding an attendee to a non-existent event', async () => {
+      const newAttendee = {
+        user_id: 1,
+        event_id: 99999,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post('/api/events/99999/attendees')
+        .send(newAttendee)
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 400 when creating an attendee if required fields are missing', async () => {
+      const incompleteAttendee = {
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post('/api/events/1/attendees')
+        .send(incompleteAttendee)
+        .expect(400);
+
+      res.body.should.have.property('message', 'Missing required fields');
+    });
+
+    it('should return 409 if user is already attending the event', async () => {
+      const newAttendee = {
+        user_id: 1,
+        event_id: 2,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post('/api/events/2/attendees')
+        .send(newAttendee)
+        .expect(409);
+
+      res.body.should.have.property('message', 'User already attending');
+    });
+    it('should return 400 when adding an attendee with invalid status', async () => {
+      const event_id = 3;
+
+      const newAttendee = {
+        user_id: 1,
+        event_id: event_id,
+        status: 'invalid_status',
+      };
+
+      const res = await request(app)
+        .post(`/api/events/${event_id}/attendees`)
+        .send(newAttendee)
+        .expect(400);
+
+      res.body.should.have.property('message', 'Invalid status');
     });
   });
 });
