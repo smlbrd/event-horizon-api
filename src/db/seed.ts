@@ -4,13 +4,16 @@ import format from 'pg-format';
 async function seed({
   userData,
   eventData,
+  attendeeData,
 }: {
   userData: any[];
   eventData: any[];
+  attendeeData: any[];
 }) {
   try {
-    await db.query('DROP TABLE IF EXISTS users;');
+    await db.query('DROP TABLE IF EXISTS event_attendees;');
     await db.query('DROP TABLE IF EXISTS events;');
+    await db.query('DROP TABLE IF EXISTS users;');
 
     await db.query(`
       CREATE TABLE users (
@@ -32,6 +35,17 @@ async function seed({
         price NUMERIC NOT NULL,
         start_time TIMESTAMPTZ NOT NULL,
         end_time TIMESTAMPTZ NOT NULL
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE event_attendees (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+        status VARCHAR(20) NOT NULL CHECK (status IN ('attending', 'cancelled')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, event_id)
       );
     `);
 
@@ -68,6 +82,17 @@ async function seed({
         eventValues
       );
       await db.query(eventInsert);
+    }
+
+    if (attendeeData.length) {
+      const attendeeValues = attendeeData.map(
+        ({ user_id, event_id, status }) => [user_id, event_id, status]
+      );
+      const attendeeInsert = format(
+        'INSERT INTO event_attendees (user_id, event_id, status) VALUES %L;',
+        attendeeValues
+      );
+      await db.query(attendeeInsert);
     }
   } catch (err) {
     console.error('Error seeding database:', err);
