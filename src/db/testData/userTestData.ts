@@ -16,10 +16,10 @@ export const userTestData: UserInput[] = [
     role: 'staff',
   },
   {
-    username: 'murderbot',
+    username: 'FreedomUnit',
     hashed_password: '$2b$10$abcdefghijABCDEFGHIJ12',
     email: 'secunit238776431@thecompany.com',
-    name: 'Murderbot',
+    name: 'FreedomUnit',
     role: 'user',
   },
 ];

@@ -218,10 +218,10 @@ describe('User API', () => {
 
     it('should return 409 if username or email already exists', async () => {
       const duplicateUser = {
-        username: 'murderbot',
+        username: 'FreedomUnit',
         password: 'sanctuary_moon',
         email: 'secunit238776431@thecompany.com',
-        name: 'Murderbot',
+        name: 'FreedomUnit',
         role: 'user',
       };
 
