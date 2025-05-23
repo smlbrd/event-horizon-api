@@ -1,5 +1,5 @@
 import db from '../db/connection';
-import { Event, EventInput } from '../types/Event';
+import { Event, EventInput, EventAttendee } from '../types/event.interface';
 import { checkExists } from '../utils/checkExists';
 import { makeError } from '../utils/makeError';
 
@@ -101,11 +101,7 @@ export const eventModel = {
     return !!result.rows[0];
   },
 
-  async addAttendee(attendee: {
-    user_id: number;
-    event_id: number;
-    status: string;
-  }) {
+  async addAttendee(attendee: EventAttendee): Promise<EventAttendee> {
     if (
       attendee.user_id === undefined ||
       attendee.event_id === undefined ||
@@ -141,5 +137,16 @@ export const eventModel = {
       [attendee.user_id, attendee.event_id, attendee.status]
     );
     return result.rows[0];
+  },
+
+  async getAttendeesForEvent(event_id: number): Promise<EventAttendee[]> {
+    if (!(await checkExists('events', event_id))) {
+      throw makeError('Event not found', 404);
+    }
+    const result = await db.query(
+      `SELECT user_id, event_id, status FROM event_attendees WHERE event_id = $1`,
+      [event_id]
+    );
+    return result.rows;
   },
 };

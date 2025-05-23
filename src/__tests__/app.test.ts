@@ -505,12 +505,12 @@ describe('Attendee API', () => {
         .get(`/api/events/${event_id}/attendees`)
         .expect(200);
 
-      console.log(res.body);
-
       res.body.should.be.an('array');
       res.body.length.should.equal(2);
       res.body[0].should.have.property('user_id');
       res.body[0].user_id.should.equal(1);
+      res.body[0].should.have.property('status');
+      res.body[0].status.should.equal('attending');
       res.body[0].should.have.property('event_id');
       res.body[0].event_id.should.equal(event_id);
     });

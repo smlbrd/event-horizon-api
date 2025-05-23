@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { EventInput } from '../types/Event';
-import { EventModel } from '../types/EventModel';
+import { EventModel, EventInput } from '../types/event.interface';
 
 export const getEvents =
   (eventModel: EventModel) =>
@@ -144,5 +143,22 @@ export const addAttendee =
       res
         .status(500)
         .json({ message: 'Error adding attendee', error: error.message });
+    }
+  };
+
+export const getAttendeesForEvent =
+  (eventModel: EventModel) =>
+  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+    const event_id = Number(req.params.id);
+    try {
+      const attendees = await eventModel.getAttendeesForEvent(event_id);
+      res.status(200).json(attendees);
+    } catch (error: any) {
+      if (error.status) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      res
+        .status(500)
+        .json({ message: 'Error retrieving attendees', error: error.message });
     }
   };

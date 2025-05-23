@@ -1,4 +1,6 @@
-export const eventDevData = [
+import { EventInput } from '../../types/event.interface';
+
+export const eventDevData: EventInput[] = [
   {
     title: 'Labour Contract Conclusion Party',
     description: "We're off this planet!",

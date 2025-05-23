@@ -1,4 +1,6 @@
-export const attendeeTestData = [
+import { EventAttendee } from '../../types/event.interface';
+
+export const attendeeTestData: EventAttendee[] = [
   { user_id: 1, event_id: 1, status: 'attending' },
   { user_id: 1, event_id: 2, status: 'attending' },
 

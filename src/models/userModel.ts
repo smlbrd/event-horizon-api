@@ -1,5 +1,5 @@
 import db from '../db/connection';
-import { UserInput, User } from '../types/User';
+import { UserInput, User } from '../types/user.interface';
 
 export const userModel = {
   async addUser(user: UserInput): Promise<User> {
