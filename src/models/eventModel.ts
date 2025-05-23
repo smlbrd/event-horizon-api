@@ -1,5 +1,10 @@
 import db from '../db/connection';
-import { Event, EventInput, EventAttendee } from '../types/event.types';
+import {
+  Event,
+  EventInput,
+  EventAttendee,
+  UpdateAttendeeStatusBody,
+} from '../types/event.types';
 import { checkExists } from '../utils/checkExists';
 import { makeError } from '../utils/makeError';
 
@@ -161,5 +166,38 @@ export const eventModel = {
       ...row,
       price: Number(row.price),
     }));
+  },
+
+  async updateAttendeeStatus(
+    event_id: number,
+    user_id: number,
+    status: UpdateAttendeeStatusBody['status']
+  ): Promise<EventAttendee> {
+    if (!VALID_ATTENDEE_STATUSES.includes(status)) {
+      throw makeError('Invalid status', 400);
+    }
+
+    if (!(await checkExists('events', event_id))) {
+      throw makeError('Event not found', 404);
+    }
+
+    if (!(await checkExists('users', user_id))) {
+      throw makeError('User not found', 404);
+    }
+
+    const attendeeRes = await db.query(
+      'SELECT * FROM event_attendees WHERE event_id = $1 AND user_id = $2',
+      [event_id, user_id]
+    );
+    if (!attendeeRes.rows[0]) throw makeError('Attendee not found', 404);
+
+    const result = await db.query(
+      `UPDATE event_attendees
+        SET status = $1
+        WHERE event_id = $2 AND user_id = $3
+        RETURNING id, user_id, event_id, status`,
+      [status, event_id, user_id]
+    );
+    return result.rows[0];
   },
 };

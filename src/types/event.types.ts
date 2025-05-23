@@ -19,6 +19,10 @@ export interface EventAttendee {
   status: string;
 }
 
+export interface UpdateAttendeeStatusBody {
+  status: 'attending' | 'cancelled';
+}
+
 export interface EventModel {
   getEvents(): Promise<Event[]>;
   getEventById(id: number): Promise<Event>;
@@ -28,4 +32,9 @@ export interface EventModel {
   addAttendee(attendee: EventAttendee): Promise<EventAttendee>;
   getAttendeesForEvent(id: number): Promise<EventAttendee[]>;
   getEventsForUser(user_id: number): Promise<Event[]>;
+  updateAttendeeStatus(
+    event_id: number,
+    user_id: number,
+    status: UpdateAttendeeStatusBody['status']
+  ): Promise<EventAttendee>;
 }

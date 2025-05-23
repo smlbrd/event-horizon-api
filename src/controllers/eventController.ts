@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { EventModel, EventInput, EventParams } from '../types/event.types';
+import {
+  EventModel,
+  EventInput,
+  EventParams,
+  UpdateAttendeeStatusBody,
+} from '../types/event.types';
 
 export const getEvents =
   (eventModel: EventModel) =>
@@ -145,6 +150,31 @@ export const getEventsForUser =
     try {
       const events = await eventModel.getEventsForUser(user_id);
       res.status(200).json(events);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const updateAttendeeStatus =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<
+      { event_id: string; user_id: string },
+      {},
+      UpdateAttendeeStatusBody
+    >,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { event_id, user_id } = req.params;
+    const { status } = req.body;
+    try {
+      const attendee = await eventModel.updateAttendeeStatus(
+        Number(event_id),
+        Number(user_id),
+        status
+      );
+      res.status(200).json(attendee);
     } catch (error) {
       next(error);
     }

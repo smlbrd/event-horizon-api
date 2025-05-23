@@ -294,7 +294,10 @@ describe('Event API', () => {
       const res = await request(app).get(`/api/events/${eventId}`).expect(200);
 
       res.body.should.have.property('id', 1);
-      res.body.should.have.property('title', 'Labour Contract Conclusion Party');
+      res.body.should.have.property(
+        'title',
+        'Labour Contract Conclusion Party'
+      );
       res.body.should.have.property('description', "We're off this planet!");
       res.body.should.have.property('location', 'Mining Station Aratake');
       res.body.should.have.property('price', 0);
@@ -385,10 +388,16 @@ describe('Event API', () => {
 
       updateRes.body.should.have.property('id', eventId);
       updateRes.body.should.have.property('title', updatedFields.title);
-      updateRes.body.should.have.property('description', updatedFields.description);
+      updateRes.body.should.have.property(
+        'description',
+        updatedFields.description
+      );
       updateRes.body.should.have.property('location', updatedFields.location);
       updateRes.body.should.have.property('price', updatedFields.price);
-      updateRes.body.should.have.property('start_time', updatedFields.start_time);
+      updateRes.body.should.have.property(
+        'start_time',
+        updatedFields.start_time
+      );
       updateRes.body.should.have.property('end_time', updatedFields.end_time);
     });
 
@@ -511,7 +520,10 @@ describe('Attendee API', () => {
       res.body.should.be.an('array');
       res.body.length.should.equal(2);
       res.body[0].should.have.property('id', 1);
-      res.body[0].should.have.property('title', 'Labour Contract Conclusion Party');
+      res.body[0].should.have.property(
+        'title',
+        'Labour Contract Conclusion Party'
+      );
     });
   });
 
@@ -519,11 +531,6 @@ describe('Attendee API', () => {
     it('should allow a user to cancel their RSVP (set status to cancelled)', async () => {
       const event_id = 2;
       const user_id = 1;
-
-      await request(app)
-        .post(`/api/events/${event_id}/attendees`)
-        .send({ user_id, event_id, status: 'attending' })
-        .expect(201);
 
       const res = await request(app)
         .patch(`/api/events/${event_id}/attendees/${user_id}`)
