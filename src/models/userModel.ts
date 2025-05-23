@@ -31,7 +31,10 @@ export const userModel: UserModel = {
     return result.rows[0];
   },
 
-  async updateUser(id: number, fields: Partial<UserInput>): Promise<User> {
+  async updateUser(
+    id: number,
+    fields: Partial<Pick<User, 'email' | 'name' | 'role'>>
+  ): Promise<User> {
     const keys = Object.keys(fields);
 
     if (keys.length === 0)
