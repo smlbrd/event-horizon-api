@@ -1,4 +1,4 @@
-import { EventAttendee } from '../../types/event.interface';
+import { EventAttendee } from '../../types/event.types';
 
 export const attendeeTestData: EventAttendee[] = [
   { user_id: 1, event_id: 1, status: 'attending' },

@@ -1,4 +1,4 @@
-import { EventInput } from '../../types/event.interface';
+import { EventInput } from '../../types/event.types';
 
 export const eventDevData: EventInput[] = [
   {

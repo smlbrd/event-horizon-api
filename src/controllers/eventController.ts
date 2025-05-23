@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { EventModel, EventInput } from '../types/event.interface';
+import { EventModel, EventInput } from '../types/event.types';
 
 export const getEvents =
   (eventModel: EventModel) =>

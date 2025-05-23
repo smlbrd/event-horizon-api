@@ -22,7 +22,7 @@ export interface EventModel {
   getEventById(id: number): Promise<Event>;
   addEvent(event: EventInput): Promise<Event>;
   updateEvent(id: number, fields: Partial<EventInput>): Promise<Event>;
-  deleteEvent(id: number): Promise<boolean>;
+  deleteEvent(id: number): Promise<void>;
   addAttendee(attendee: EventAttendee): Promise<EventAttendee>;
   getAttendeesForEvent(id: number): Promise<EventAttendee[]>;
 }

@@ -1,4 +1,4 @@
-import { UserInput } from '../../types/user.interface';
+import { UserInput } from '../../types/user.types';
 
 export const userDevData: UserInput[] = [
   {

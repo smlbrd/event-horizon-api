@@ -1,5 +1,5 @@
 import db from '../db/connection';
-import { Event, EventInput, EventAttendee } from '../types/event.interface';
+import { Event, EventInput, EventAttendee } from '../types/event.types';
 import { checkExists } from '../utils/checkExists';
 import { makeError } from '../utils/makeError';
 
@@ -90,15 +90,11 @@ export const eventModel = {
     };
   },
 
-  async deleteEvent(id: number): Promise<boolean> {
+  async deleteEvent(id: number): Promise<void> {
     if (!(await checkExists('events', id))) {
       throw makeError('Event not found', 404);
     }
-    const result = await db.query(
-      'DELETE FROM events WHERE id = $1 RETURNING id',
-      [id]
-    );
-    return !!result.rows[0];
+    await db.query('DELETE FROM events WHERE id = $1 RETURNING id', [id]);
   },
 
   async addAttendee(attendee: EventAttendee): Promise<EventAttendee> {
