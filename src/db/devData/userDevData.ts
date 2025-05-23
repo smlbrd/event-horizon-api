@@ -1,4 +1,4 @@
-import { UserInput } from '../../types/User';
+import { UserInput } from '../../types/user.types';
 
 export const userDevData: UserInput[] = [
   {
@@ -44,10 +44,10 @@ export const userDevData: UserInput[] = [
     role: 'user',
   },
   {
-    username: 'murderbot',
+    username: 'FreedomUnit',
     hashed_password: '$2b$10$abcdefghijABCDEFGHIJ12',
     email: 'secunit238776431@thecompany.com',
-    name: 'Murderbot',
+    name: 'FreedomUnit',
     role: 'user',
   },
 ];

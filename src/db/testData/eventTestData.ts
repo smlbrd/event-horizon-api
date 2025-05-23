@@ -1,4 +1,4 @@
-import { EventInput } from '../../types/Event';
+import { EventInput } from '../../types/event.types';
 
 export const eventTestData: EventInput[] = [
   {

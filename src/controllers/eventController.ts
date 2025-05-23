@@ -1,39 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
-import { EventInput } from '../types/Event';
+import {
+  EventModel,
+  EventInput,
+  EventParams,
+  UpdateAttendeeStatusBody,
+} from '../types/event.types';
 
 export const getEvents =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const events = await eventModel.getEvents();
       res.status(200).json(events);
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error retrieving events', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const getEventDetails =
-  (eventModel: any) =>
-  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  (eventModel: EventModel) =>
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const { event_id } = req.params;
     try {
-      const event = await eventModel.getEventById(Number(id));
-      if (event) {
-        res.status(200).json(event);
-      } else {
-        res.status(404).json({ message: 'Event not found' });
-      }
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error retrieving event', error: error.message });
+      const event = await eventModel.getEventById(Number(event_id));
+      res.status(200).json(event);
+    } catch (error) {
+      next(error);
     }
   };
 
 export const createEvent =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (
     req: Request<{}, {}, EventInput>,
     res: Response,
@@ -46,10 +43,11 @@ export const createEvent =
       !description ||
       !location ||
       price === null ||
+      price === undefined ||
       !start_time ||
       !end_time
     ) {
-      return res.status(400).json({ message: 'Missing required event fields' });
+      return next({ status: 400, message: 'Missing required event fields' });
     }
     try {
       const event = await eventModel.addEvent({
@@ -61,54 +59,123 @@ export const createEvent =
         end_time,
       });
       res.status(201).json(event);
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error creating event', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const updateEvent =
-  (eventModel: any) =>
+  (eventModel: EventModel) =>
   async (
-    req: Request<{ id: string }, {}, Partial<EventInput>>,
+    req: Request<EventParams, {}, Partial<EventInput>>,
     res: Response,
     next: NextFunction
   ) => {
-    const { id } = req.params;
+    const { event_id } = req.params;
     const fields = req.body;
 
     if (!fields || Object.keys(fields).length === 0) {
-      return res.status(400).json({ message: 'No fields provided for update' });
+      return next({ status: 400, message: 'No fields provided for update' });
     }
 
     try {
-      const updatedEvent = await eventModel.updateEvent(Number(id), fields);
-      if (updatedEvent) {
-        res.status(200).json(updatedEvent);
-      } else {
-        res.status(404).json({ message: 'Event not found' });
-      }
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error updating event', error: error.message });
+      const updatedEvent = await eventModel.updateEvent(
+        Number(event_id),
+        fields
+      );
+      res.status(200).json(updatedEvent);
+    } catch (error) {
+      next(error);
     }
   };
 
 export const deleteEvent =
-  (eventModel: any) =>
-  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  (eventModel: EventModel) =>
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const { event_id } = req.params;
     try {
-      const deleted = await eventModel.deleteEvent(Number(id));
-      if (!deleted) {
-        return res.status(404).json({ message: 'Event not found' });
-      }
+      await eventModel.deleteEvent(Number(event_id));
       res.status(204).send();
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error deleting event', error: error.message });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const addAttendee =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<EventParams, {}, { user_id: number; status: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const event_id = Number(req.params.event_id);
+    const { user_id, status } = req.body;
+
+    if (user_id === undefined || status === undefined) {
+      return next({ status: 400, message: 'Missing required fields' });
+    }
+
+    try {
+      const attendee = await eventModel.addAttendee({
+        user_id,
+        event_id,
+        status,
+      });
+      res.status(201).json(attendee);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const getAttendeesForEvent =
+  (eventModel: EventModel) =>
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const event_id = Number(req.params.event_id);
+    try {
+      const attendees = await eventModel.getAttendeesForEvent(event_id);
+      res.status(200).json(attendees);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const getEventsForUser =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<{ user_id: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user_id = Number(req.params.user_id);
+    try {
+      const events = await eventModel.getEventsForUser(user_id);
+      res.status(200).json(events);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const updateAttendeeStatus =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<
+      { event_id: string; user_id: string },
+      {},
+      UpdateAttendeeStatusBody
+    >,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { event_id, user_id } = req.params;
+    const { status } = req.body;
+    try {
+      const attendee = await eventModel.updateAttendeeStatus(
+        Number(event_id),
+        Number(user_id),
+        status
+      );
+      res.status(200).json(attendee);
+    } catch (error) {
+      next(error);
     }
   };
