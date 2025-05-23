@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { EventModel, EventInput } from '../types/event.types';
+import { EventModel, EventInput, EventParams } from '../types/event.types';
 
 export const getEvents =
   (eventModel: EventModel) =>
@@ -7,27 +7,20 @@ export const getEvents =
     try {
       const events = await eventModel.getEvents();
       res.status(200).json(events);
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: 'Error retrieving events', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const getEventDetails =
   (eventModel: EventModel) =>
-  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const { event_id } = req.params;
     try {
-      const event = await eventModel.getEventById(Number(id));
+      const event = await eventModel.getEventById(Number(event_id));
       res.status(200).json(event);
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error retrieving event', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
@@ -49,7 +42,7 @@ export const createEvent =
       !start_time ||
       !end_time
     ) {
-      return res.status(400).json({ message: 'Missing required event fields' });
+      return next({ status: 400, message: 'Missing required event fields' });
     }
     try {
       const event = await eventModel.addEvent({
@@ -61,72 +54,60 @@ export const createEvent =
         end_time,
       });
       res.status(201).json(event);
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error creating event', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const updateEvent =
   (eventModel: EventModel) =>
   async (
-    req: Request<{ id: string }, {}, Partial<EventInput>>,
+    req: Request<EventParams, {}, Partial<EventInput>>,
     res: Response,
     next: NextFunction
   ) => {
-    const { id } = req.params;
+    const { event_id } = req.params;
     const fields = req.body;
 
     if (!fields || Object.keys(fields).length === 0) {
-      return res.status(400).json({ message: 'No fields provided for update' });
+      return next({ status: 400, message: 'No fields provided for update' });
     }
 
     try {
-      const updatedEvent = await eventModel.updateEvent(Number(id), fields);
+      const updatedEvent = await eventModel.updateEvent(
+        Number(event_id),
+        fields
+      );
       res.status(200).json(updatedEvent);
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error updating event', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const deleteEvent =
   (eventModel: EventModel) =>
-  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const { event_id } = req.params;
     try {
-      await eventModel.deleteEvent(Number(id));
+      await eventModel.deleteEvent(Number(event_id));
       res.status(204).send();
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error deleting event', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const addAttendee =
   (eventModel: EventModel) =>
   async (
-    req: Request<{ id: string }, {}, { user_id: number; status: string }>,
+    req: Request<EventParams, {}, { user_id: number; status: string }>,
     res: Response,
     next: NextFunction
   ) => {
-    const event_id = Number(req.params.id);
+    const event_id = Number(req.params.event_id);
     const { user_id, status } = req.body;
 
     if (user_id === undefined || status === undefined) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return next({ status: 400, message: 'Missing required fields' });
     }
 
     try {
@@ -136,29 +117,35 @@ export const addAttendee =
         status,
       });
       res.status(201).json(attendee);
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error adding attendee', error: error.message });
+    } catch (error) {
+      next(error);
     }
   };
 
 export const getAttendeesForEvent =
   (eventModel: EventModel) =>
-  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const event_id = Number(req.params.id);
+  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+    const event_id = Number(req.params.event_id);
     try {
       const attendees = await eventModel.getAttendeesForEvent(event_id);
       res.status(200).json(attendees);
-    } catch (error: any) {
-      if (error.status) {
-        return res.status(error.status).json({ message: error.message });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error retrieving attendees', error: error.message });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const getEventsForUser =
+  (eventModel: EventModel) =>
+  async (
+    req: Request<{ user_id: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user_id = Number(req.params.user_id);
+    try {
+      const events = await eventModel.getEventsForUser(user_id);
+      res.status(200).json(events);
+    } catch (error) {
+      next(error);
     }
   };

@@ -10,7 +10,7 @@ export interface User extends UserInput {
   id: number;
 }
 
-export type UserParams = { id: string };
+export type UserParams = { user_id: number };
 
 export type CreateUserBody = {
   username: string;

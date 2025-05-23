@@ -15,7 +15,7 @@ export const createUser =
   ) => {
     const { username, password, email, name } = req.body;
     if (!username || !password || !email || !name) {
-      return res.status(400).json({ message: 'Missing required user fields' });
+      return next({ status: 400, message: 'Missing required user fields' });
     }
     try {
       const hashed_password = password;
@@ -32,31 +32,25 @@ export const createUser =
       res.status(201).json(userWithoutPassword);
     } catch (error: any) {
       if (error.code === '23505') {
-        return res
-          .status(409)
-          .json({ message: 'Username or email already exists' });
+        return next({
+          status: 409,
+          message: 'Username or email already exists',
+        });
       }
-      res
-        .status(500)
-        .json({ message: 'Error creating user', error: error.message });
+      next(error);
     }
   };
 
 export const getUser =
   (userModel: UserModel) =>
   async (req: Request<UserParams>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const { user_id } = req.params;
     try {
-      const user = await userModel.getUserById(Number(id));
+      const user = await userModel.getUserById(Number(user_id));
       const { hashed_password: _, ...userWithoutPassword } = user;
       res.status(200).json(userWithoutPassword);
     } catch (error: any) {
-      if (error.status === 404) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error retrieving user', error: error.message });
+      next(error);
     }
   };
 
@@ -67,38 +61,28 @@ export const updateUser =
     res: Response,
     next: NextFunction
   ) => {
-    const { id } = req.params;
+    const { user_id } = req.params;
     const { email, name, role } = req.body;
     try {
-      const updated = await userModel.updateUser(Number(id), {
+      const updated = await userModel.updateUser(Number(user_id), {
         email,
         name,
         role,
       });
       res.status(200).json(updated);
     } catch (error: any) {
-      if (error.status === 404) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error updating user', error: error.message });
+      next(error);
     }
   };
 
 export const deleteUser =
   (userModel: UserModel) =>
   async (req: Request<UserParams>, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const { user_id } = req.params;
     try {
-      await userModel.deleteUser(Number(id));
+      await userModel.deleteUser(Number(user_id));
       res.status(204).send();
     } catch (error: any) {
-      if (error.status === 404) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res
-        .status(500)
-        .json({ message: 'Error deleting user', error: error.message });
+      next(error);
     }
   };

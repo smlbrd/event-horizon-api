@@ -145,4 +145,21 @@ export const eventModel = {
     );
     return result.rows;
   },
+
+  async getEventsForUser(user_id: number) {
+    if (!(await checkExists('users', user_id))) {
+      throw makeError('User not found', 404);
+    }
+    const result = await db.query(
+      `SELECT e.*
+      FROM events e
+      JOIN event_attendees a ON a.event_id = e.id
+      WHERE a.user_id = $1`,
+      [user_id]
+    );
+    return result.rows.map((row) => ({
+      ...row,
+      price: Number(row.price),
+    }));
+  },
 };

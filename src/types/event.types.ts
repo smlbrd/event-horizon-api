@@ -11,6 +11,8 @@ export interface Event extends EventInput {
   id: number;
 }
 
+export type EventParams = { event_id: number };
+
 export interface EventAttendee {
   user_id: number;
   event_id: number;
@@ -25,4 +27,5 @@ export interface EventModel {
   deleteEvent(id: number): Promise<void>;
   addAttendee(attendee: EventAttendee): Promise<EventAttendee>;
   getAttendeesForEvent(id: number): Promise<EventAttendee[]>;
+  getEventsForUser(user_id: number): Promise<Event[]>;
 }

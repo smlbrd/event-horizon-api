@@ -525,9 +525,9 @@ describe('Attendee API', () => {
       res.body.should.be.an('array');
       res.body.length.should.equal(2);
       res.body[0].should.have.property('id');
-      res.body[0].id.should.equal(2);
+      res.body[0].id.should.equal(1);
       res.body[0].should.have.property('title');
-      res.body[0].title.should.equal('Planetary Survey');
+      res.body[0].title.should.equal('Labour Contract Conclusion Party');
     });
   });
 
@@ -570,7 +570,7 @@ describe('Attendee API', () => {
       };
 
       const res = await request(app)
-        .post('/api/events/2/attendees')
+        .post(`/api/events/2/attendees`)
         .send(newAttendee)
         .expect(409);
 
