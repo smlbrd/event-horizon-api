@@ -497,6 +497,23 @@ describe('Attendee API', () => {
       res.body.event_id.should.equal(event_id);
       res.body.status.should.equal('attending');
     });
+
+    it('should retrieve all attendees for an event', async () => {
+      const event_id = 2;
+
+      const res = await request(app)
+        .get(`/api/events/${event_id}/attendees`)
+        .expect(200);
+
+      console.log(res.body);
+
+      res.body.should.be.an('array');
+      res.body.length.should.equal(2);
+      res.body[0].should.have.property('user_id');
+      res.body[0].user_id.should.equal(1);
+      res.body[0].should.have.property('event_id');
+      res.body[0].event_id.should.equal(event_id);
+    });
   });
 
   describe('Attendee API update and delete', () => {});
