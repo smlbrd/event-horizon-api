@@ -10,6 +10,7 @@ import {
   serverErrorHandler,
   notFoundErrorHandler,
 } from '../middleware/errorHandler';
+import { attendeeTestData } from '../db/testData/attendeeTestData';
 
 chai.should();
 
@@ -18,7 +19,11 @@ after(async () => {
 });
 
 beforeEach(async () => {
-  await seed({ userData: userTestData, eventData: eventTestData });
+  await seed({
+    userData: userTestData,
+    eventData: eventTestData,
+    attendeeData: attendeeTestData,
+  });
 });
 
 describe('General API', () => {
@@ -443,6 +448,30 @@ describe('Event API', () => {
         .expect(400);
 
       res.body.should.have.property('message', 'No fields provided for update');
+    });
+  });
+});
+
+describe('Attendee API', () => {
+  describe('Attendee creation and retrieval', () => {
+    it('should create an attendee for an event', async () => {
+      const event_id = 3;
+
+      const newAttendee = {
+        user_id: 1,
+        event_id: event_id,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post(`/api/events/${event_id}/attendees`)
+        .send(newAttendee)
+        .expect(201);
+
+      res.body.should.have.property('id');
+      res.body.user_id.should.equal(newAttendee.user_id);
+      res.body.event_id.should.equal(newAttendee.event_id);
+      res.body.status.should.equal(newAttendee.status);
     });
   });
 });
