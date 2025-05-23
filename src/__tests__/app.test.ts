@@ -68,7 +68,7 @@ describe('Utility Functions', () => {
 
 describe('User API', () => {
   describe('User creation and retrieval', () => {
-    it('should create a user', async () => {
+    it('should create a new user', async () => {
       const newUser = {
         username: 'testuser',
         password: 'testpassword',
@@ -103,11 +103,12 @@ describe('User API', () => {
         .send(newUser)
         .expect(201);
 
-      res.body.should.have.property('id');
+      res.body.should.have.property('id', 4);
       res.body.should.have.property('username', newUser.username);
       res.body.should.have.property('email', newUser.email);
       res.body.should.have.property('name', newUser.name);
       res.body.should.have.property('role', newUser.role);
+      res.body.should.not.have.property('password');
       res.body.should.not.have.property('hashed_password');
     });
 
@@ -200,7 +201,7 @@ describe('User API', () => {
       await request(app).delete('/api/users/99999').expect(404);
     });
 
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 400 when creating a user if required fields are missing', async () => {
       const incompleteUser = {
         username: 'usernamebutnopassword',
         email: 'usernamebutnopassword@example.com',
@@ -216,9 +217,29 @@ describe('User API', () => {
       res.body.should.have.property('message', 'Missing required user fields');
     });
 
-    it('should return 409 if username or email already exists', async () => {
+    it('should return 409 when creating a user if username already exists', async () => {
       const duplicateUser = {
         username: 'FreedomUnit',
+        password: 'sanctuary_moon',
+        email: 'freedomunit1@thecompany.com',
+        name: 'FreedomUnit',
+        role: 'user',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(duplicateUser)
+        .expect(409);
+
+      res.body.should.have.property(
+        'message',
+        'Username or email already exists'
+      );
+    });
+
+    it('should return 409 when creating a user if email already exists', async () => {
+      const duplicateUser = {
+        username: 'anotheruser',
         password: 'sanctuary_moon',
         email: 'secunit238776431@thecompany.com',
         name: 'FreedomUnit',
@@ -230,7 +251,10 @@ describe('User API', () => {
         .send(duplicateUser)
         .expect(409);
 
-      res.body.should.have.property('message');
+      res.body.should.have.property(
+        'message',
+        'Username or email already exists'
+      );
     });
   });
 
@@ -510,6 +534,15 @@ describe('Attendee API', () => {
       res.body[0].should.have.property('event_id', event_id);
     });
 
+    it('should return an empty array if no attendees for an event', async () => {
+      const event_id = 3;
+      const res = await request(app)
+        .get(`/api/events/${event_id}/attendees`)
+        .expect(200);
+      res.body.should.be.an('array');
+      res.body.should.be.empty;
+    });
+
     it('should retrieve all events for a user', async () => {
       const user_id = 1;
 
@@ -524,6 +557,17 @@ describe('Attendee API', () => {
         'title',
         'Labour Contract Conclusion Party'
       );
+    });
+
+    it('should return an empty array if no events for a user', async () => {
+      const user_id = 3;
+
+      const res = await request(app)
+        .get(`/api/users/${user_id}/events`)
+        .expect(200);
+
+      res.body.should.be.an('array');
+      res.body.should.be.empty;
     });
   });
 
@@ -541,10 +585,39 @@ describe('Attendee API', () => {
       res.body.should.have.property('event_id', event_id);
       res.body.should.have.property('status', 'cancelled');
     });
+
+    it('should allow a user to change their RSVP status after cancelling (set status to attending)', async () => {
+      const event_id = 2;
+      const user_id = 1;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({ status: 'attending' })
+        .expect(200);
+
+      res.body.should.have.property('user_id', user_id);
+      res.body.should.have.property('event_id', event_id);
+      res.body.should.have.property('status', 'attending');
+    });
   });
 
   describe('Attendee API error cases', () => {
-    it('should return 404 when adding an attendee to a non-existent event', async () => {
+    it('should return 404 when adding attendee for a non-existent user', async () => {
+      const event_id = 2;
+      const newAttendee = {
+        user_id: 99999,
+        event_id,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post(`/api/events/${event_id}/attendees`)
+        .send(newAttendee)
+        .expect(404);
+
+      res.body.should.have.property('message', 'User not found');
+    });
+    it('should return 404 when adding attendee for a non-existent event', async () => {
       const newAttendee = {
         user_id: 1,
         event_id: 99999,
@@ -557,6 +630,92 @@ describe('Attendee API', () => {
         .expect(404);
 
       res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 404 when fetching attendees for a non-existent event', async () => {
+      const res = await request(app)
+        .get('/api/events/99999/attendees')
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 404 when adding user to a non-existent event', async () => {
+      const newAttendee = {
+        user_id: 1,
+        event_id: 99999,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post('/api/events/99999/attendees')
+        .send(newAttendee)
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 404 if updating attendee status for a non-existent user', async () => {
+      const event_id = 1;
+      const user_id = 99999;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({ status: 'cancelled' })
+        .expect(404);
+
+      res.body.should.have.property('message', 'User not found');
+    });
+
+    it('should return 404 if updating status for a user who is not attending', async () => {
+      const event_id = 3;
+      const user_id = 2;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({ status: 'cancelled' })
+        .expect(404);
+
+      res.body.should.have.property('message', 'Attendee not found');
+    });
+
+    it('should return 404 when fetching attendees for a deleted event', async () => {
+      const event_id = 1;
+
+      await request(app).delete(`/api/events/${event_id}`).expect(204);
+
+      const res = await request(app)
+        .get(`/api/events/${event_id}/attendees`)
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 404 when fetching events for a deleted user', async () => {
+      const user_id = 1;
+
+      await request(app).delete(`/api/users/${user_id}`).expect(204);
+
+      const res = await request(app)
+        .get(`/api/users/${user_id}/events`)
+        .expect(404);
+
+      res.body.should.have.property('message', 'User not found');
+    });
+
+    it('should return 409 if adding an attendee who is already attending an event', async () => {
+      const newAttendee = {
+        user_id: 1,
+        event_id: 2,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post(`/api/events/2/attendees`)
+        .send(newAttendee)
+        .expect(409);
+
+      res.body.should.have.property('message', 'User already attending');
     });
 
     it('should return 400 when creating an attendee if required fields are missing', async () => {
@@ -572,20 +731,6 @@ describe('Attendee API', () => {
       res.body.should.have.property('message', 'Missing required fields');
     });
 
-    it('should return 409 if user is already attending the event', async () => {
-      const newAttendee = {
-        user_id: 1,
-        event_id: 2,
-        status: 'attending',
-      };
-
-      const res = await request(app)
-        .post(`/api/events/2/attendees`)
-        .send(newAttendee)
-        .expect(409);
-
-      res.body.should.have.property('message', 'User already attending');
-    });
     it('should return 400 when adding an attendee with invalid status', async () => {
       const event_id = 3;
 
@@ -598,6 +743,30 @@ describe('Attendee API', () => {
       const res = await request(app)
         .post(`/api/events/${event_id}/attendees`)
         .send(newAttendee)
+        .expect(400);
+
+      res.body.should.have.property('message', 'Invalid status');
+    });
+
+    it('should return 400 when updating an attendee with invalid status', async () => {
+      const event_id = 2;
+      const user_id = 1;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({ status: 'not_a_status' })
+        .expect(400);
+
+      res.body.should.have.property('message', 'Invalid status');
+    });
+
+    it('should return 400 when updating an attendee with missing status', async () => {
+      const event_id = 2;
+      const user_id = 1;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({})
         .expect(400);
 
       res.body.should.have.property('message', 'Invalid status');
