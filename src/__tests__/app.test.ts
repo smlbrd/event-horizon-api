@@ -28,6 +28,22 @@ beforeEach(async () => {
   });
 });
 
+describe('General API', () => {
+  it('should return 200 OK with endpoints details', async () => {
+    const res = await request(app).get('/api').expect(200);
+    res.body.should.have.property('endpoints');
+    res.body.endpoints.should.deep.equal(endpoints);
+  });
+
+  it('should return 404 for non-existing endpoints', async () => {
+    const res = await request(app)
+      .get('/api/non-existing-endpoint')
+      .expect(404);
+
+    res.body.should.have.property('message', 'Not Found');
+  });
+});
+
 describe('Utility Functions', () => {
   describe('makeError', () => {
     it('should create an error with the given message and status', () => {
@@ -50,21 +66,6 @@ describe('Utility Functions', () => {
   });
 });
 
-describe('General API', () => {
-  it('should return 200 OK with endpoints details', async () => {
-    const res = await request(app).get('/api').expect(200);
-    res.body.should.have.property('endpoints');
-    res.body.endpoints.should.deep.equal(endpoints);
-  });
-
-  it('should return 404 for non-existing endpoints', async () => {
-    const res = await request(app)
-      .get('/api/non-existing-endpoint')
-      .expect(404);
-    res.body.should.have.property('message').which.equals('Not Found');
-  });
-});
-
 describe('User API', () => {
   describe('User creation and retrieval', () => {
     it('should create a user', async () => {
@@ -81,10 +82,10 @@ describe('User API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.username.should.equal(newUser.username);
-      res.body.email.should.equal(newUser.email);
-      res.body.name.should.equal(newUser.name);
-      res.body.role.should.equal(newUser.role);
+      res.body.should.have.property('username', newUser.username);
+      res.body.should.have.property('email', newUser.email);
+      res.body.should.have.property('name', newUser.name);
+      res.body.should.have.property('role', newUser.role);
       res.body.should.not.have.property('hashed_password');
     });
 
@@ -103,10 +104,10 @@ describe('User API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.username.should.equal(newUser.username);
-      res.body.email.should.equal(newUser.email);
-      res.body.name.should.equal(newUser.name);
-      res.body.role.should.equal(newUser.role);
+      res.body.should.have.property('username', newUser.username);
+      res.body.should.have.property('email', newUser.email);
+      res.body.should.have.property('name', newUser.name);
+      res.body.should.have.property('role', newUser.role);
       res.body.should.not.have.property('hashed_password');
     });
 
@@ -149,12 +150,10 @@ describe('User API', () => {
         .send(updatedFields)
         .expect(200);
 
-      updateRes.body.should.include({
-        id: userId,
-        email: updatedFields.email,
-        name: updatedFields.name,
-        role: updatedFields.role,
-      });
+      updateRes.body.should.have.property('id', userId);
+      updateRes.body.should.have.property('email', updatedFields.email);
+      updateRes.body.should.have.property('name', updatedFields.name);
+      updateRes.body.should.have.property('role', updatedFields.role);
     });
 
     it('should delete an existing user', async () => {
@@ -273,7 +272,7 @@ describe('User API', () => {
         .send(newUser)
         .expect(201);
 
-      res.body.role.should.equal('user');
+      res.body.should.have.property('role', 'user');
     });
   });
 });
@@ -285,10 +284,8 @@ describe('Event API', () => {
 
       res.body.should.be.an('array');
       res.body.length.should.be.greaterThan(0);
-      res.body[0].should.have.property('id');
-      res.body[0].id.should.equal(1);
-      res.body[2].should.have.property('title');
-      res.body[2].title.should.equal('Planetary Survey');
+      res.body[0].should.have.property('id', 1);
+      res.body[2].should.have.property('title', 'Planetary Survey');
     });
 
     it('should retrieve an existing event', async () => {
@@ -296,13 +293,13 @@ describe('Event API', () => {
 
       const res = await request(app).get(`/api/events/${eventId}`).expect(200);
 
-      res.body.id.should.equal(1);
-      res.body.title.should.equal('Labour Contract Conclusion Party');
-      res.body.description.should.equal("We're off this planet!");
-      res.body.location.should.equal('Mining Station Aratake');
-      res.body.price.should.equal(0);
-      res.body.start_time.should.equal('2025-07-01T20:00:00.000Z');
-      res.body.end_time.should.equal('2025-07-01T23:00:00.000Z');
+      res.body.should.have.property('id', 1);
+      res.body.should.have.property('title', 'Labour Contract Conclusion Party');
+      res.body.should.have.property('description', "We're off this planet!");
+      res.body.should.have.property('location', 'Mining Station Aratake');
+      res.body.should.have.property('price', 0);
+      res.body.should.have.property('start_time', '2025-07-01T20:00:00.000Z');
+      res.body.should.have.property('end_time', '2025-07-01T23:00:00.000Z');
     });
 
     it('should create a new event', async () => {
@@ -321,12 +318,12 @@ describe('Event API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.title.should.equal(newEvent.title);
-      res.body.description.should.equal(newEvent.description);
-      res.body.location.should.equal(newEvent.location);
-      res.body.price.should.equal(newEvent.price);
-      res.body.start_time.should.equal(newEvent.start_time);
-      res.body.end_time.should.equal(newEvent.end_time);
+      res.body.should.have.property('title', newEvent.title);
+      res.body.should.have.property('description', newEvent.description);
+      res.body.should.have.property('location', newEvent.location);
+      res.body.should.have.property('price', newEvent.price);
+      res.body.should.have.property('start_time', newEvent.start_time);
+      res.body.should.have.property('end_time', newEvent.end_time);
     });
 
     it('should allow a new events with a price of 0', async () => {
@@ -345,12 +342,12 @@ describe('Event API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.title.should.equal(newEvent.title);
-      res.body.description.should.equal(newEvent.description);
-      res.body.location.should.equal(newEvent.location);
-      res.body.price.should.equal(newEvent.price);
-      res.body.start_time.should.equal(newEvent.start_time);
-      res.body.end_time.should.equal(newEvent.end_time);
+      res.body.should.have.property('title', newEvent.title);
+      res.body.should.have.property('description', newEvent.description);
+      res.body.should.have.property('location', newEvent.location);
+      res.body.should.have.property('price', newEvent.price);
+      res.body.should.have.property('start_time', newEvent.start_time);
+      res.body.should.have.property('end_time', newEvent.end_time);
     });
   });
 
@@ -386,21 +383,13 @@ describe('Event API', () => {
         .send(updatedFields)
         .expect(200);
 
-      updateRes.body.should.include({
-        id: eventId,
-        title: updatedFields.title,
-        description: updatedFields.description,
-        location: updatedFields.location,
-        price: updatedFields.price,
-        start_time: updatedFields.start_time,
-        end_time: updatedFields.end_time,
-      });
-      updateRes.body.title.should.equal('Updated Event');
-      updateRes.body.description.should.equal('This event has been updated');
-      updateRes.body.location.should.equal('Updated Location');
-      updateRes.body.price.should.equal(75);
-      updateRes.body.start_time.should.equal('2025-08-01T14:00:00.000Z');
-      updateRes.body.end_time.should.equal('2025-08-01T16:00:00.000Z');
+      updateRes.body.should.have.property('id', eventId);
+      updateRes.body.should.have.property('title', updatedFields.title);
+      updateRes.body.should.have.property('description', updatedFields.description);
+      updateRes.body.should.have.property('location', updatedFields.location);
+      updateRes.body.should.have.property('price', updatedFields.price);
+      updateRes.body.should.have.property('start_time', updatedFields.start_time);
+      updateRes.body.should.have.property('end_time', updatedFields.end_time);
     });
 
     it('should delete an existing event', async () => {
@@ -438,7 +427,7 @@ describe('Event API', () => {
     });
 
     it('should return 404 when updating a non-existent event', async () => {
-      const updateRes = await request(app)
+      await request(app)
         .patch('/api/events/99999')
         .send({ title: 'No One' })
         .expect(404);
@@ -493,9 +482,9 @@ describe('Attendee API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.user_id.should.equal(1);
-      res.body.event_id.should.equal(event_id);
-      res.body.status.should.equal('attending');
+      res.body.should.have.property('user_id', 1);
+      res.body.should.have.property('event_id', event_id);
+      res.body.should.have.property('status', 'attending');
     });
 
     it('should retrieve all attendees for an event', async () => {
@@ -507,12 +496,9 @@ describe('Attendee API', () => {
 
       res.body.should.be.an('array');
       res.body.length.should.equal(2);
-      res.body[0].should.have.property('user_id');
-      res.body[0].user_id.should.equal(1);
-      res.body[0].should.have.property('status');
-      res.body[0].status.should.equal('attending');
-      res.body[0].should.have.property('event_id');
-      res.body[0].event_id.should.equal(event_id);
+      res.body[0].should.have.property('user_id', 1);
+      res.body[0].should.have.property('status', 'attending');
+      res.body[0].should.have.property('event_id', event_id);
     });
 
     it('should retrieve all events for a user', async () => {
@@ -524,14 +510,31 @@ describe('Attendee API', () => {
 
       res.body.should.be.an('array');
       res.body.length.should.equal(2);
-      res.body[0].should.have.property('id');
-      res.body[0].id.should.equal(1);
-      res.body[0].should.have.property('title');
-      res.body[0].title.should.equal('Labour Contract Conclusion Party');
+      res.body[0].should.have.property('id', 1);
+      res.body[0].should.have.property('title', 'Labour Contract Conclusion Party');
     });
   });
 
-  describe('Attendee API update and delete', () => {});
+  describe('Attendee API update and delete', () => {
+    it('should allow a user to cancel their RSVP (set status to cancelled)', async () => {
+      const event_id = 2;
+      const user_id = 1;
+
+      await request(app)
+        .post(`/api/events/${event_id}/attendees`)
+        .send({ user_id, event_id, status: 'attending' })
+        .expect(201);
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .send({ status: 'cancelled' })
+        .expect(200);
+
+      res.body.should.have.property('user_id', user_id);
+      res.body.should.have.property('event_id', event_id);
+      res.body.should.have.property('status', 'cancelled');
+    });
+  });
 
   describe('Attendee API error cases', () => {
     it('should return 404 when adding an attendee to a non-existent event', async () => {
