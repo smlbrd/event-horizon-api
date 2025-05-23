@@ -514,6 +514,21 @@ describe('Attendee API', () => {
       res.body[0].should.have.property('event_id');
       res.body[0].event_id.should.equal(event_id);
     });
+
+    it('should retrieve all events for a user', async () => {
+      const user_id = 1;
+
+      const res = await request(app)
+        .get(`/api/users/${user_id}/events`)
+        .expect(200);
+
+      res.body.should.be.an('array');
+      res.body.length.should.equal(2);
+      res.body[0].should.have.property('id');
+      res.body[0].id.should.equal(2);
+      res.body[0].should.have.property('title');
+      res.body[0].title.should.equal('Planetary Survey');
+    });
   });
 
   describe('Attendee API update and delete', () => {});
