@@ -44,6 +44,14 @@ jobs:
           echo "PGPORT=5432" >> .env.test
           echo "NODE_ENV=test" >> .env.test
 
+      - name: Wait for Postgres
+        run: |
+          for i in {1..10}; do
+            pg_isready -h localhost -p 5432 -U postgres && break
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+
       - name: Run tests
         env:
           NODE_ENV: test
