@@ -98,6 +98,24 @@ describe('Utility Functions & Middleware', () => {
     });
   });
 
+  describe('validateEmail utility function', () => {
+    it('should return 400 if email is invalid', async () => {
+      const newUser = {
+        username: 'bademail',
+        password: 'averysecurepassword',
+        email: 'notanemail',
+        name: 'Bad Email',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property('message', 'Invalid email format');
+    });
+  });
+
   describe('errorHandler middleware', () => {
     it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
       let statusCode: number | undefined;

@@ -6,6 +6,7 @@ import {
   UpdateUserBody,
 } from '../types/user.types';
 import { hashPassword } from '../utils/hashPassword';
+import { validateEmail } from '../utils/validateEmail';
 
 export const createUser =
   (userModel: UserModel) =>
@@ -17,6 +18,9 @@ export const createUser =
     const { username, password, email, name } = req.body;
     if (!username || !password || !email || !name) {
       return next({ status: 400, message: 'Missing required user fields' });
+    }
+    if (!validateEmail(email)) {
+      return next({ status: 400, message: 'Invalid email format' });
     }
     if (password.length < 15 || password.length > 128) {
       return next({
