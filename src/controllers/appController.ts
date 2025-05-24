@@ -6,6 +6,7 @@ import {
 } from '../types/user.types';
 import { comparePassword } from '../utils/comparePassword';
 import endpoints from '../../endpoints.json';
+import jwt from 'jsonwebtoken';
 
 export const getApi = (req: Request, res: Response) => {
   res.status(200).send({ endpoints });
@@ -33,10 +34,18 @@ export const loginUser =
       }
 
       const { hashed_password, ...userWithoutPassword } = user;
+
+      const token = jwt.sign(
+        { userId: user.id, username: user.username, role: user.role },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '1h' }
+      );
+
       res.status(200).json({
         message: 'Login successful',
+        token,
         user: userWithoutPassword,
-      } as LoginUserResponse);
+      } as LoginUserResponse & { token: string });
     } catch (error) {
       next(error);
     }

@@ -15,6 +15,7 @@ import {
 } from '../middleware/errorHandler';
 import { hashPassword } from '../utils/hashPassword';
 import { comparePassword } from '../utils/comparePassword';
+import jwt from 'jsonwebtoken';
 
 chai.should();
 
@@ -31,6 +32,10 @@ beforeEach(async () => {
 });
 
 describe('General API', () => {
+  it('should return 200 OK for health check', async () => {
+    await request(app).get('/api/health').expect(200);
+  });
+
   it('should return 200 OK with endpoints details', async () => {
     const res = await request(app).get('/api').expect(200);
     res.body.should.have.property('endpoints');
@@ -46,8 +51,8 @@ describe('General API', () => {
   });
 });
 
-describe('Utility Functions', () => {
-  describe('makeError', () => {
+describe('Utility Functions & Middleware', () => {
+  describe('makeError utility function', () => {
     it('should create an error with the given message and status', () => {
       const error = makeError('Test Error', 400);
       expect(error).to.have.property('message', 'Test Error');
@@ -55,7 +60,7 @@ describe('Utility Functions', () => {
     });
   });
 
-  describe('checkExists', () => {
+  describe('checkExists utility function', () => {
     it('should return true if the record exists', async () => {
       const exists = await checkExists('users', 1);
       expect(exists).to.be.true;
@@ -67,7 +72,7 @@ describe('Utility Functions', () => {
     });
   });
 
-  describe('hashPassword', () => {
+  describe('hashPassword utility function', () => {
     it('should hash a password', async () => {
       const password = 'testpasswordtest';
       const hashedPassword = await hashPassword(password);
@@ -77,7 +82,7 @@ describe('Utility Functions', () => {
     });
   });
 
-  describe('comparePassword', () => {
+  describe('comparePassword utility function', () => {
     it('should compare a plain password with a hashed password', async () => {
       const password = 'testpasswordtest';
       const hashedPassword = await hashPassword(password);
@@ -90,6 +95,73 @@ describe('Utility Functions', () => {
       const hashedPassword = await hashPassword(password);
       const match = await comparePassword('wrongpassword', hashedPassword);
       expect(match).to.be.false;
+    });
+  });
+
+  describe('errorHandler middleware', () => {
+    it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      serverErrorHandler({} as any, {} as any, res as any, () => {});
+
+      expect(statusCode).to.equal(500);
+      expect(jsonResponse).to.deep.equal({ message: 'Internal Server Error' });
+    });
+
+    it('serverErrorHandler uses error status and message if provided', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      serverErrorHandler(
+        { status: 404, message: 'Not Found' },
+        {} as any,
+        res as any,
+        () => {}
+      );
+
+      expect(statusCode).to.equal(404);
+      expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
+    });
+
+    it('notFoundErrorHandler returns 404 and "Not Found" message', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      notFoundErrorHandler({} as any, res as any, () => {});
+
+      expect(statusCode).to.equal(404);
+      expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
     });
   });
 });
@@ -421,6 +493,35 @@ describe('Authentication API', () => {
 
       expect(failRes.body).to.have.property('message', 'Invalid credentials');
     });
+
+    it('should return a JWT on successful login', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .expect(200);
+
+      expect(loginRes.body).to.have.property('token');
+      const decoded = jwt.verify(loginRes.body.token, process.env.JWT_SECRET!);
+      expect(decoded).to.have.property('userId');
+      expect(decoded).to.have.property('username', 'dr_mensah');
+    });
+
+    it('should allow access to protected route with valid token', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
+      const protectedRes = await request(app)
+        .get('/api/protected')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(protectedRes.body).to.have.property('message', 'You have access!');
+      expect(protectedRes.body.user).to.have.property('username', 'dr_mensah');
+    });
   });
 
   describe('User login error cases', () => {
@@ -440,6 +541,19 @@ describe('Authentication API', () => {
         .expect(401);
 
       res.body.should.have.property('message', 'Invalid credentials');
+    });
+
+    it('should return 401 when trying to access to protected route without token', async () => {
+      await request(app).get('/api/protected').expect(401);
+    });
+
+    it('should return 403 for invalid token', async () => {
+      const res = await request(app)
+        .get('/api/protected')
+        .set('Authorization', 'Bearer invalidtoken')
+        .expect(403);
+
+      expect(res.body).to.have.property('message', 'Invalid token');
     });
   });
 });
@@ -914,72 +1028,5 @@ describe('Attendee API', () => {
 
       res.body.should.have.property('message', 'Invalid status');
     });
-  });
-});
-
-describe('errorHandler middleware', () => {
-  it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    serverErrorHandler({} as any, {} as any, res as any, () => {});
-
-    expect(statusCode).to.equal(500);
-    expect(jsonResponse).to.deep.equal({ message: 'Internal Server Error' });
-  });
-
-  it('serverErrorHandler uses error status and message if provided', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    serverErrorHandler(
-      { status: 404, message: 'Not Found' },
-      {} as any,
-      res as any,
-      () => {}
-    );
-
-    expect(statusCode).to.equal(404);
-    expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
-  });
-
-  it('notFoundErrorHandler returns 404 and "Not Found" message', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    notFoundErrorHandler({} as any, res as any, () => {});
-
-    expect(statusCode).to.equal(404);
-    expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
   });
 });
