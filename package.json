@@ -2,11 +2,12 @@
   "name": "event-horizon-api",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "src/server.ts",
   "scripts": {
     "setup-dbs": "psql -f src/db/setup.sql",
     "start": "ts-node src/server.ts",
     "seed": "ts-node src/db/run-seed.ts",
+    "seed-prod": "NODE_ENV=production npm run seed",
     "test": "ts-mocha src/__tests__/*.test.ts",
     "build": "tsc"
   },
