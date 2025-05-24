@@ -21,9 +21,17 @@ if (ENV === 'production') {
 
 const pool = new Pool(config);
 
-pool.on('error', (err) => {
+pool.on('error', async (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  try {
+    console.log('Attempting to close database pool due to error...');
+    await pool.end();
+    console.log('Database pool closed.');
+  } catch (closeErr) {
+    console.error('Error while closing database pool', closeErr);
+  } finally {
+    process.exit(1);
+  }
 });
 
 process.on('SIGTERM', async () => {
