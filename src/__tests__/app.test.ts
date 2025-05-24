@@ -327,7 +327,7 @@ describe('User API', () => {
   });
 });
 
-describe('Authentication API', () => {
+describe.only('Authentication API', () => {
   describe('User login', () => {
     it('should verify a plain password against the stored hashed password', async () => {
       const newUser = {
@@ -354,6 +354,26 @@ describe('Authentication API', () => {
         .expect(401);
 
       expect(failRes.body).to.have.property('message', 'Invalid credentials');
+    });
+  });
+
+  describe('User login error cases', () => {
+    it('should return 400 when username or password is missing', async () => {
+      const res = await request(app)
+        .post('/api/login')
+        .send({ username: 'testuser' })
+        .expect(400);
+
+      res.body.should.have.property('message', 'Missing username or password');
+    });
+
+    it('should return 401 for invalid credentials', async () => {
+      const res = await request(app)
+        .post('/api/login')
+        .send({ username: 'nonexistent', password: 'wrongpassword' })
+        .expect(401);
+
+      res.body.should.have.property('message', 'Invalid credentials');
     });
   });
 });
