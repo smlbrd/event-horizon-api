@@ -116,6 +116,24 @@ describe('Utility Functions & Middleware', () => {
     });
   });
 
+  describe('validateUsername utility function', () => {
+    it('should return 400 if username is invalid', async () => {
+      const newUser = {
+        username: 'bad!user',
+        password: 'averysecurepassword',
+        email: 'baduser@example.com',
+        name: 'Bad User',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property('message', 'Invalid username format');
+    });
+  });
+
   describe('errorHandler middleware', () => {
     it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
       let statusCode: number | undefined;
