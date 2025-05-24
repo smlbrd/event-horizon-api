@@ -5,6 +5,7 @@ import {
   CreateUserBody,
   UpdateUserBody,
 } from '../types/user.types';
+import { hashPassword } from '../utils/hashPassword';
 
 export const createUser =
   (userModel: UserModel) =>
@@ -18,7 +19,7 @@ export const createUser =
       return next({ status: 400, message: 'Missing required user fields' });
     }
     try {
-      const hashed_password = password;
+      const hashed_password = await hashPassword(password);
       const user = await userModel.addUser({
         username,
         hashed_password,

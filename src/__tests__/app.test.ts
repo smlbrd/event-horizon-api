@@ -259,6 +259,32 @@ describe('User API', () => {
   });
 
   describe('User API security', () => {
+    it('should store a hashed password, not the plain password', async () => {
+      const secureUser = {
+        username: 'test',
+        password: 'plaintext',
+        email: 'test@example.com',
+        name: 'Test',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(secureUser)
+        .expect(201);
+
+      const result = await db.query(
+        'SELECT hashed_password FROM users WHERE username = $1',
+        [secureUser.username]
+      );
+
+      expect(result.rows).to.have.lengthOf(1);
+
+      const hashPass = result.rows[0].hashed_password;
+      expect(hashPass).to.be.a('string');
+      expect(hashPass).to.not.equal(secureUser.password);
+      expect(hashPass.length).to.be.greaterThan(20);
+    });
+
     it('should never return password or hashed_password fields in user responses', async () => {
       const newUser = {
         username: 'donotobservemypassword',
@@ -297,6 +323,37 @@ describe('User API', () => {
         .expect(201);
 
       res.body.should.have.property('role', 'user');
+    });
+  });
+});
+
+describe('Authentication API', () => {
+  describe('User login', () => {
+    it('should verify a plain password against the stored hashed password', async () => {
+      const newUser = {
+        username: 'hashtestcomparison',
+        password: 'testpassword',
+        email: 'test@example.com',
+        name: 'Test Hash',
+      };
+
+      await request(app).post('/api/users').send(newUser).expect(201);
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: newUser.username, password: newUser.password })
+        .expect(200);
+
+      expect(loginRes.body).to.have.property('message', 'Login successful');
+      expect(loginRes.body).to.have.property('user');
+      expect(loginRes.body.user).to.have.property('username', newUser.username);
+
+      const failRes = await request(app)
+        .post('/api/login')
+        .send({ username: newUser.username, password: 'wrongpassword' })
+        .expect(401);
+
+      expect(failRes.body).to.have.property('message', 'Invalid credentials');
     });
   });
 });

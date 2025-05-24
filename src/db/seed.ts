@@ -1,3 +1,4 @@
+import { hashPassword } from '../utils/hashPassword';
 import db from './connection';
 import format from 'pg-format';
 
@@ -50,15 +51,19 @@ async function seed({
     `);
 
     if (userData.length) {
-      const userValues = userData.map(
-        ({ username, hashed_password, email, name, role }) => [
-          username,
+      const userValues = [];
+
+      for (const user of userData) {
+        const hashed_password = await hashPassword(user.password);
+
+        userValues.push([
+          user.username,
           hashed_password,
-          email,
-          name,
-          role,
-        ]
-      );
+          user.email,
+          user.name,
+          user.role,
+        ]);
+      }
       const userInsert = format(
         'INSERT INTO users (username, hashed_password, email, name, role) VALUES %L;',
         userValues
