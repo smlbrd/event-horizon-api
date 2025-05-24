@@ -1,4 +1,4 @@
-# event-horizon-api
+# Event Horizon Api
 
 ## Setup Instructions
 
