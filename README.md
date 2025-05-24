@@ -1,5 +1,9 @@
 # Event Horizon Api
 
+This API is hosted online [here](https://event-horizon-api-nuzf.onrender.com/api).
+
+> Note: It is a free tier of hosting, so it may take up to a minute to spin up for the first time.
+
 ## Setup Instructions
 
 1. **Clone the repository:**
