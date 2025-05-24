@@ -18,6 +18,12 @@ export const createUser =
     if (!username || !password || !email || !name) {
       return next({ status: 400, message: 'Missing required user fields' });
     }
+    if (password.length < 15 || password.length > 128) {
+      return next({
+        status: 400,
+        message: 'Password must be between 15 and 128 characters',
+      });
+    }
     try {
       const hashed_password = await hashPassword(password);
       const user = await userModel.addUser({

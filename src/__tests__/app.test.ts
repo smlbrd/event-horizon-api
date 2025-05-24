@@ -71,7 +71,7 @@ describe('User API', () => {
     it('should create a new user', async () => {
       const newUser = {
         username: 'testuser',
-        password: 'testpassword',
+        password: 'testpasswordtest',
         email: 'test@example.com',
         name: 'test account',
         role: 'user',
@@ -92,7 +92,7 @@ describe('User API', () => {
     it('should create a new user with hashed password', async () => {
       const newUser = {
         username: 'pin_lee',
-        password: 'i_love_law',
+        password: 'KillJoyBloodLustTechRiot',
         email: 'pinlee@preservationaux.com',
         name: 'Pin-Lee',
         role: 'user',
@@ -130,7 +130,7 @@ describe('User API', () => {
     it('should update an existing user', async () => {
       const newUser = {
         username: 'update_me',
-        password: 'password',
+        password: 'testpasswordtest',
         email: 'update_me@example.com',
         name: 'Update Me',
         role: 'user',
@@ -160,7 +160,7 @@ describe('User API', () => {
     it('should delete an existing user', async () => {
       const newUser = {
         username: 'delete_me',
-        password: 'password',
+        password: 'testpasswordtest',
         email: 'delete_me@example.com',
         name: 'Delete Me',
         role: 'user',
@@ -217,10 +217,48 @@ describe('User API', () => {
       res.body.should.have.property('message', 'Missing required user fields');
     });
 
+    it('should return 400 if password is too short', async () => {
+      const newUser = {
+        username: 'shortpass',
+        password: '123',
+        email: 'short@example.com',
+        name: 'Short Pass',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property(
+        'message',
+        'Password must be between 15 and 128 characters'
+      );
+    });
+
+    it('should return 400 if password is too long', async () => {
+      const newUser = {
+        username: 'loooooooongpass',
+        password: 'a'.repeat(130),
+        email: 'long@example.com',
+        name: 'Long Pass',
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property(
+        'message',
+        'Password must be between 15 and 128 characters'
+      );
+    });
+
     it('should return 409 when creating a user if username already exists', async () => {
       const duplicateUser = {
         username: 'FreedomUnit',
-        password: 'sanctuary_moon',
+        password: 'sanctuary_moon1',
         email: 'freedomunit1@thecompany.com',
         name: 'FreedomUnit',
         role: 'user',
@@ -240,7 +278,7 @@ describe('User API', () => {
     it('should return 409 when creating a user if email already exists', async () => {
       const duplicateUser = {
         username: 'anotheruser',
-        password: 'sanctuary_moon',
+        password: 'sanctuary_moon1',
         email: 'secunit238776431@thecompany.com',
         name: 'FreedomUnit',
         role: 'user',
@@ -262,7 +300,7 @@ describe('User API', () => {
     it('should store a hashed password, not the plain password', async () => {
       const secureUser = {
         username: 'test',
-        password: 'plaintext',
+        password: 'plaintextpassword',
         email: 'test@example.com',
         name: 'Test',
       };
@@ -288,7 +326,7 @@ describe('User API', () => {
     it('should never return password or hashed_password fields in user responses', async () => {
       const newUser = {
         username: 'donotobservemypassword',
-        password: 'supersecret',
+        password: 'supersecretpassword',
         email: 'nopassword@example.com',
         name: 'Do Not Perceive It',
         role: 'user',
@@ -312,7 +350,7 @@ describe('User API', () => {
     it('should always create a user with role "user"', async () => {
       const newUser = {
         username: 'testuser2',
-        password: 'testpassword',
+        password: 'testpasswordtest',
         email: 'test2@example.com',
         name: 'Test2',
         role: 'staff',
@@ -327,12 +365,12 @@ describe('User API', () => {
   });
 });
 
-describe.only('Authentication API', () => {
+describe('Authentication API', () => {
   describe('User login', () => {
     it('should verify a plain password against the stored hashed password', async () => {
       const newUser = {
         username: 'hashtestcomparison',
-        password: 'testpassword',
+        password: 'testpasswordtest',
         email: 'test@example.com',
         name: 'Test Hash',
       };

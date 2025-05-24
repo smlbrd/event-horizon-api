@@ -3,7 +3,7 @@ import { UserSeedInput } from '../../types/user.types';
 export const userDevData: UserSeedInput[] = [
   {
     username: 'dr_mensah',
-    password: 'AmenaPlus6',
+    password: 'preservationalliance',
     email: 'mensah@preservationaux.com',
     name: 'Dr. Ayda Mensah',
     role: 'admin',
@@ -38,14 +38,14 @@ export const userDevData: UserSeedInput[] = [
   },
   {
     username: 'arada',
-    password: 'P051T1V1T1E',
+    password: 'P051T1V1T1EEEEE',
     email: 'arada@preservationaux.com',
     name: 'Arada',
     role: 'user',
   },
   {
     username: 'FreedomUnit',
-    password: 'Sanctuary_Moon',
+    password: 'Sanctuary_Moon1',
     email: 'secunit238776431@thecompany.com',
     name: 'FreedomUnit',
     role: 'user',
