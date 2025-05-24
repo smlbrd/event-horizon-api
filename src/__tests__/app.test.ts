@@ -13,6 +13,8 @@ import {
   serverErrorHandler,
   notFoundErrorHandler,
 } from '../middleware/errorHandler';
+import { hashPassword } from '../utils/hashPassword';
+import { comparePassword } from '../utils/comparePassword';
 
 chai.should();
 
@@ -62,6 +64,32 @@ describe('Utility Functions', () => {
     it('should return false if the record does not exist', async () => {
       const exists = await checkExists('users', 99999);
       expect(exists).to.be.false;
+    });
+  });
+
+  describe('hashPassword', () => {
+    it('should hash a password', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      expect(hashedPassword).to.be.a('string');
+      expect(hashedPassword.length).to.be.greaterThan(20);
+      expect(hashedPassword).to.not.equal(password);
+    });
+  });
+
+  describe('comparePassword', () => {
+    it('should compare a plain password with a hashed password', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      const match = await comparePassword(password, hashedPassword);
+      expect(match).to.be.true;
+    });
+
+    it('should return false for incorrect passwords', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      const match = await comparePassword('wrongpassword', hashedPassword);
+      expect(match).to.be.false;
     });
   });
 });
