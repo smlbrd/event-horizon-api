@@ -13,6 +13,9 @@ import {
   serverErrorHandler,
   notFoundErrorHandler,
 } from '../middleware/errorHandler';
+import { hashPassword } from '../utils/hashPassword';
+import { comparePassword } from '../utils/comparePassword';
+import jwt from 'jsonwebtoken';
 
 chai.should();
 
@@ -29,6 +32,10 @@ beforeEach(async () => {
 });
 
 describe('General API', () => {
+  it('should return 200 OK for health check', async () => {
+    await request(app).get('/api/health').expect(200);
+  });
+
   it('should return 200 OK with endpoints details', async () => {
     const res = await request(app).get('/api').expect(200);
     res.body.should.have.property('endpoints');
@@ -44,8 +51,8 @@ describe('General API', () => {
   });
 });
 
-describe('Utility Functions', () => {
-  describe('makeError', () => {
+describe('Utility Functions & Middleware', () => {
+  describe('makeError utility function', () => {
     it('should create an error with the given message and status', () => {
       const error = makeError('Test Error', 400);
       expect(error).to.have.property('message', 'Test Error');
@@ -53,7 +60,7 @@ describe('Utility Functions', () => {
     });
   });
 
-  describe('checkExists', () => {
+  describe('checkExists utility function', () => {
     it('should return true if the record exists', async () => {
       const exists = await checkExists('users', 1);
       expect(exists).to.be.true;
@@ -64,6 +71,135 @@ describe('Utility Functions', () => {
       expect(exists).to.be.false;
     });
   });
+
+  describe('hashPassword utility function', () => {
+    it('should hash a password', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      expect(hashedPassword).to.be.a('string');
+      expect(hashedPassword.length).to.be.greaterThan(20);
+      expect(hashedPassword).to.not.equal(password);
+    });
+  });
+
+  describe('comparePassword utility function', () => {
+    it('should compare a plain password with a hashed password', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      const match = await comparePassword(password, hashedPassword);
+      expect(match).to.be.true;
+    });
+
+    it('should return false for incorrect passwords', async () => {
+      const password = 'testpasswordtest';
+      const hashedPassword = await hashPassword(password);
+      const match = await comparePassword('wrongpassword', hashedPassword);
+      expect(match).to.be.false;
+    });
+  });
+
+  describe('validateEmail utility function', () => {
+    it('should return 400 if email is invalid', async () => {
+      const newUser = {
+        username: 'bademail',
+        password: 'averysecurepassword',
+        email: 'notanemail',
+        name: 'Bad Email',
+      };
+
+      const res = await request(app)
+        .post('/api/register')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property('message', 'Invalid email format');
+    });
+  });
+
+  describe('validateUsername utility function', () => {
+    it('should return 400 if username is invalid', async () => {
+      const newUser = {
+        username: 'bad!user',
+        password: 'averysecurepassword',
+        email: 'baduser@example.com',
+        name: 'Bad User',
+      };
+
+      const res = await request(app)
+        .post('/api/register')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property('message', 'Invalid username format');
+    });
+  });
+
+  describe('errorHandler middleware', () => {
+    it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      serverErrorHandler({} as any, {} as any, res as any, () => {});
+
+      expect(statusCode).to.equal(500);
+      expect(jsonResponse).to.deep.equal({ message: 'Internal Server Error' });
+    });
+
+    it('serverErrorHandler uses error status and message if provided', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      serverErrorHandler(
+        { status: 404, message: 'Not Found' },
+        {} as any,
+        res as any,
+        () => {}
+      );
+
+      expect(statusCode).to.equal(404);
+      expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
+    });
+
+    it('notFoundErrorHandler returns 404 and "Not Found" message', () => {
+      let statusCode: number | undefined;
+      let jsonResponse: any;
+
+      const res = {
+        status(code: number) {
+          statusCode = code;
+          return this;
+        },
+        json(obj: any) {
+          jsonResponse = obj;
+        },
+      };
+
+      notFoundErrorHandler({} as any, res as any, () => {});
+
+      expect(statusCode).to.equal(404);
+      expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
+    });
+  });
 });
 
 describe('User API', () => {
@@ -71,13 +207,13 @@ describe('User API', () => {
     it('should create a new user', async () => {
       const newUser = {
         username: 'testuser',
-        password: 'testpassword',
+        password: 'testpasswordtest',
         email: 'test@example.com',
         name: 'test account',
         role: 'user',
       };
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -92,14 +228,14 @@ describe('User API', () => {
     it('should create a new user with hashed password', async () => {
       const newUser = {
         username: 'pin_lee',
-        password: 'i_love_law',
+        password: 'KillJoyBloodLustTechRiot',
         email: 'pinlee@preservationaux.com',
         name: 'Pin-Lee',
         role: 'user',
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -130,13 +266,13 @@ describe('User API', () => {
     it('should update an existing user', async () => {
       const newUser = {
         username: 'update_me',
-        password: 'password',
+        password: 'testpasswordtest',
         email: 'update_me@example.com',
         name: 'Update Me',
         role: 'user',
       };
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
       const userId = createRes.body.id;
@@ -160,13 +296,13 @@ describe('User API', () => {
     it('should delete an existing user', async () => {
       const newUser = {
         username: 'delete_me',
-        password: 'password',
+        password: 'testpasswordtest',
         email: 'delete_me@example.com',
         name: 'Delete Me',
         role: 'user',
       };
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
       const userId = createRes.body.id;
@@ -210,24 +346,62 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(incompleteUser)
         .expect(400);
 
       res.body.should.have.property('message', 'Missing required user fields');
     });
 
+    it('should return 400 if password is too short', async () => {
+      const newUser = {
+        username: 'shortpass',
+        password: '123',
+        email: 'short@example.com',
+        name: 'Short Pass',
+      };
+
+      const res = await request(app)
+        .post('/api/register')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property(
+        'message',
+        'Password must be between 15 and 128 characters'
+      );
+    });
+
+    it('should return 400 if password is too long', async () => {
+      const newUser = {
+        username: 'loooooooongpass',
+        password: 'a'.repeat(130),
+        email: 'long@example.com',
+        name: 'Long Pass',
+      };
+
+      const res = await request(app)
+        .post('/api/register')
+        .send(newUser)
+        .expect(400);
+
+      expect(res.body).to.have.property(
+        'message',
+        'Password must be between 15 and 128 characters'
+      );
+    });
+
     it('should return 409 when creating a user if username already exists', async () => {
       const duplicateUser = {
         username: 'FreedomUnit',
-        password: 'sanctuary_moon',
+        password: 'sanctuary_moon1',
         email: 'freedomunit1@thecompany.com',
         name: 'FreedomUnit',
         role: 'user',
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(duplicateUser)
         .expect(409);
 
@@ -240,14 +414,14 @@ describe('User API', () => {
     it('should return 409 when creating a user if email already exists', async () => {
       const duplicateUser = {
         username: 'anotheruser',
-        password: 'sanctuary_moon',
+        password: 'sanctuary_moon1',
         email: 'secunit238776431@thecompany.com',
         name: 'FreedomUnit',
         role: 'user',
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(duplicateUser)
         .expect(409);
 
@@ -259,17 +433,43 @@ describe('User API', () => {
   });
 
   describe('User API security', () => {
+    it('should store a hashed password, not the plain password', async () => {
+      const secureUser = {
+        username: 'test',
+        password: 'plaintextpassword',
+        email: 'test@example.com',
+        name: 'Test',
+      };
+
+      const res = await request(app)
+        .post('/api/register')
+        .send(secureUser)
+        .expect(201);
+
+      const result = await db.query(
+        'SELECT hashed_password FROM users WHERE username = $1',
+        [secureUser.username]
+      );
+
+      expect(result.rows).to.have.lengthOf(1);
+
+      const hashPass = result.rows[0].hashed_password;
+      expect(hashPass).to.be.a('string');
+      expect(hashPass).to.not.equal(secureUser.password);
+      expect(hashPass.length).to.be.greaterThan(20);
+    });
+
     it('should never return password or hashed_password fields in user responses', async () => {
       const newUser = {
         username: 'donotobservemypassword',
-        password: 'supersecret',
+        password: 'supersecretpassword',
         email: 'nopassword@example.com',
         name: 'Do Not Perceive It',
         role: 'user',
       };
 
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -286,17 +486,110 @@ describe('User API', () => {
     it('should always create a user with role "user"', async () => {
       const newUser = {
         username: 'testuser2',
-        password: 'testpassword',
+        password: 'testpasswordtest',
         email: 'test2@example.com',
         name: 'Test2',
         role: 'staff',
       };
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
       res.body.should.have.property('role', 'user');
+    });
+  });
+});
+
+describe('Authentication API', () => {
+  describe('User login', () => {
+    it('should verify a plain password against the stored hashed password', async () => {
+      const newUser = {
+        username: 'hashtestcomparison',
+        password: 'testpasswordtest',
+        email: 'test@example.com',
+        name: 'Test Hash',
+      };
+
+      await request(app).post('/api/register').send(newUser).expect(201);
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: newUser.username, password: newUser.password })
+        .expect(200);
+
+      expect(loginRes.body).to.have.property('message', 'Login successful');
+      expect(loginRes.body).to.have.property('user');
+      expect(loginRes.body.user).to.have.property('username', newUser.username);
+
+      const failRes = await request(app)
+        .post('/api/login')
+        .send({ username: newUser.username, password: 'wrongpassword' })
+        .expect(401);
+
+      expect(failRes.body).to.have.property('message', 'Invalid credentials');
+    });
+
+    it('should return a JWT on successful login', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .expect(200);
+
+      expect(loginRes.body).to.have.property('token');
+      const decoded = jwt.verify(loginRes.body.token, process.env.JWT_SECRET!);
+      expect(decoded).to.have.property('userId');
+      expect(decoded).to.have.property('username', 'dr_mensah');
+    });
+
+    it('should allow access to protected route with valid token', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
+      const protectedRes = await request(app)
+        .get('/api/protected')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(protectedRes.body).to.have.property('message', 'You have access!');
+      expect(protectedRes.body.user).to.have.property('username', 'dr_mensah');
+    });
+  });
+
+  describe('User login error cases', () => {
+    it('should return 400 when username or password is missing', async () => {
+      const res = await request(app)
+        .post('/api/login')
+        .send({ username: 'testuser' })
+        .expect(400);
+
+      res.body.should.have.property('message', 'Missing username or password');
+    });
+
+    it('should return 401 for invalid credentials', async () => {
+      const res = await request(app)
+        .post('/api/login')
+        .send({ username: 'nonexistent', password: 'wrongpassword' })
+        .expect(401);
+
+      res.body.should.have.property('message', 'Invalid credentials');
+    });
+
+    it('should return 401 when trying to access to protected route without token', async () => {
+      await request(app).get('/api/protected').expect(401);
+    });
+
+    it('should return 403 for invalid token', async () => {
+      const res = await request(app)
+        .get('/api/protected')
+        .set('Authorization', 'Bearer invalidtoken')
+        .expect(403);
+
+      expect(res.body).to.have.property('message', 'Invalid token');
     });
   });
 });
@@ -771,72 +1064,5 @@ describe('Attendee API', () => {
 
       res.body.should.have.property('message', 'Invalid status');
     });
-  });
-});
-
-describe('errorHandler middleware', () => {
-  it('serverErrorHandler returns 500 and default message if no status/message on error', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    serverErrorHandler({} as any, {} as any, res as any, () => {});
-
-    expect(statusCode).to.equal(500);
-    expect(jsonResponse).to.deep.equal({ message: 'Internal Server Error' });
-  });
-
-  it('serverErrorHandler uses error status and message if provided', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    serverErrorHandler(
-      { status: 404, message: 'Not Found' },
-      {} as any,
-      res as any,
-      () => {}
-    );
-
-    expect(statusCode).to.equal(404);
-    expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
-  });
-
-  it('notFoundErrorHandler returns 404 and "Not Found" message', () => {
-    let statusCode: number | undefined;
-    let jsonResponse: any;
-
-    const res = {
-      status(code: number) {
-        statusCode = code;
-        return this;
-      },
-      json(obj: any) {
-        jsonResponse = obj;
-      },
-    };
-
-    notFoundErrorHandler({} as any, res as any, () => {});
-
-    expect(statusCode).to.equal(404);
-    expect(jsonResponse).to.deep.equal({ message: 'Not Found' });
   });
 });

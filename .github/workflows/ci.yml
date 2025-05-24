@@ -43,6 +43,7 @@ jobs:
           echo "PGHOST=localhost" >> .env.test
           echo "PGPORT=5432" >> .env.test
           echo "NODE_ENV=test" >> .env.test
+          echo "JWT_SECRET=testsecret" >> .env.test
 
       - name: Run tests
         env:

@@ -1,51 +1,51 @@
-import { UserInput } from '../../types/user.types';
+import { UserSeedInput } from '../../types/user.types';
 
-export const userDevData: UserInput[] = [
+export const userDevData: UserSeedInput[] = [
   {
     username: 'dr_mensah',
-    hashed_password: '$2b$10$klmnopqrstKLMNOPQRST34',
+    password: 'preservationalliance',
     email: 'mensah@preservationaux.com',
     name: 'Dr. Ayda Mensah',
     role: 'admin',
   },
   {
     username: 'gurathin',
-    hashed_password: '$2b$10$efghijklmnEFGHIJKLMN78',
+    password: 'the_real_treasure_was_the_friends_we_made_along_the_way',
     email: 'gurathin@preservationaux.com',
     name: 'Gurathin',
     role: 'staff',
   },
   {
     username: 'pin_lee',
-    hashed_password: '$2b$10$opqrstuvwxOPQRSTUVWX90',
+    password: 'KillJoyBloodLustTechRiot',
     email: 'pinlee@preservationaux.com',
     name: 'Pin-Lee',
     role: 'staff',
   },
   {
     username: 'ratthi',
-    hashed_password: '$2b$10$uvwxyzabcdUVWXYZABCD56',
+    password: 'JewelsJuiceAndJamsBaby',
     email: 'ratthi@preservationaux.com',
     name: 'Ratthi',
     role: 'user',
   },
   {
     username: 'bharadwaj',
-    hashed_password: '$2b$10$ijklmnopqrSTUVWXYZabcd34',
+    password: 'BiochemistryIsFun',
     email: 'bharadwaj@preservationaux.com',
     name: 'Bharadwaj',
     role: 'user',
   },
   {
     username: 'arada',
-    hashed_password: '$2b$10$mnopqrstuVWXYZabcdefg78',
+    password: 'P051T1V1T1EEEEE',
     email: 'arada@preservationaux.com',
     name: 'Arada',
     role: 'user',
   },
   {
     username: 'FreedomUnit',
-    hashed_password: '$2b$10$abcdefghijABCDEFGHIJ12',
+    password: 'Sanctuary_Moon1',
     email: 'secunit238776431@thecompany.com',
     name: 'FreedomUnit',
     role: 'user',

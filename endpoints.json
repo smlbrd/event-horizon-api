@@ -2,8 +2,20 @@
   "endpoints": [
     {
       "method": "GET",
+      "path": "/api/health",
+      "description": "Health check endpoint. Returns 200 OK if the API is running.",
+      "exampleRequest": {
+        "method": "GET",
+        "url": "/api/health"
+      },
+      "exampleResponse": {
+        "status": "OK"
+      }
+    },
+    {
+      "method": "GET",
       "path": "/api",
-      "description": "Get API documentation and available endpoints.",
+      "description": "Returns a list of all available API endpoints.",
       "exampleRequest": {
         "method": "GET",
         "url": "/api"
@@ -30,41 +42,71 @@
     },
     {
       "method": "GET",
-      "path": "/api/users",
-      "description": "Retrieve all users.",
+      "path": "/api/protected",
+      "description": "Protected route. Requires a valid JWT token in the Authorization header.",
       "exampleRequest": {
         "method": "GET",
-        "url": "/api/users"
-      },
-      "exampleResponse": [
-        {
-          "id": 1,
-          "username": "FreedomUnit",
-          "email": "secunit238776431@thecompany.com",
-          "name": "FreedomUnit",
-          "role": "user"
+        "url": "/api/protected",
+        "headers": {
+          "Authorization": "Bearer <JWT_TOKEN>"
         }
-      ]
+      },
+      "exampleResponse": {
+        "message": "You have access!",
+        "user": {
+          "userId": 1,
+          "username": "dr_mensah",
+          "role": "admin",
+          "iat": 1716560000,
+          "exp": 1716563600
+        }
+      }
     },
     {
       "method": "POST",
-      "path": "/api/users",
-      "description": "Create a new user.",
+      "path": "/api/login",
+      "description": "Authenticate a user and return a JWT token.",
+      "exampleRequest": {
+        "method": "POST",
+        "url": "/api/login",
+        "body": {
+          "username": "dr_mensah",
+          "password": "preservationalliance"
+        }
+      },
+      "exampleResponse": {
+        "message": "Login successful",
+        "token": "<JWT_TOKEN>",
+        "user": {
+          "id": 1,
+          "username": "dr_mensah",
+          "email": "mensah@preservationaux.com",
+          "name": "Dr. Ayda Mensah",
+          "role": "admin"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/register",
+      "description": "Register a new user account and create a JWT token.",
       "exampleRequest": {
         "method": "POST",
         "url": "/api/users",
         "body": {
-          "username": "testuser",
-          "password": "testpassword",
-          "email": "test@example.com",
-          "name": "Test User"
+          "username": "janedoe",
+          "password": "supersecurepassword",
+          "email": "janedoe@example.com",
+          "name": "Jane Doe"
         }
       },
       "exampleResponse": {
-        "id": 2,
-        "username": "testuser",
-        "email": "test@example.com",
-        "name": "Test User",
+        "message": "Signup successful",
+        "token": "<JWT_TOKEN>",
+        "id": 5,
+        "username": "janedoe",
+        "email": "janedoe@example.com",
+        "name": "Jane Doe",
         "role": "user"
       }
     },
@@ -78,10 +120,10 @@
       },
       "exampleResponse": {
         "id": 1,
-        "username": "FreedomUnit",
-        "email": "secunit238776431@thecompany.com",
-        "name": "FreedomUnit",
-        "role": "user"
+        "username": "dr_mensah",
+        "email": "mensah@preservationaux.com",
+        "name": "Dr. Ayda Mensah",
+        "role": "admin"
       }
     },
     {
@@ -92,16 +134,16 @@
         "method": "PATCH",
         "url": "/api/users/1",
         "body": {
-          "email": "updated@example.com",
-          "name": "Updated Name",
+          "email": "newemail@example.com",
+          "name": "New Name",
           "role": "staff"
         }
       },
       "exampleResponse": {
         "id": 1,
-        "username": "FreedomUnit",
-        "email": "updated@example.com",
-        "name": "Updated Name",
+        "username": "dr_mensah",
+        "email": "newemail@example.com",
+        "name": "New Name",
         "role": "staff"
       }
     },
@@ -152,8 +194,35 @@
           "price": 0,
           "start_time": "2025-07-01T20:00:00.000Z",
           "end_time": "2025-07-01T23:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "title": "Planetary Survey",
+          "description": "Survey the new planet.",
+          "location": "Planet X",
+          "price": 100,
+          "start_time": "2025-08-01T10:00:00.000Z",
+          "end_time": "2025-08-01T12:00:00.000Z"
         }
       ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/events/:event_id",
+      "description": "Retrieve an event by ID.",
+      "exampleRequest": {
+        "method": "GET",
+        "url": "/api/events/1"
+      },
+      "exampleResponse": {
+        "id": 1,
+        "title": "Labour Contract Conclusion Party",
+        "description": "We're off this planet!",
+        "location": "Mining Station Aratake",
+        "price": 0,
+        "start_time": "2025-07-01T20:00:00.000Z",
+        "end_time": "2025-07-01T23:00:00.000Z"
+      }
     },
     {
       "method": "POST",
@@ -172,31 +241,13 @@
         }
       },
       "exampleResponse": {
-        "id": 2,
+        "id": 3,
         "title": "New Event",
         "description": "This is a new event",
         "location": "New Location",
         "price": 100.0,
         "start_time": "2025-08-01T10:00:00.000Z",
         "end_time": "2025-08-01T12:00:00.000Z"
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/api/events/:event_id",
-      "description": "Retrieve an event by ID.",
-      "exampleRequest": {
-        "method": "GET",
-        "url": "/api/events/1"
-      },
-      "exampleResponse": {
-        "id": 1,
-        "title": "Labour Contract Conclusion Party",
-        "description": "We're off this planet!",
-        "location": "Mining Station Aratake",
-        "price": 0,
-        "start_time": "2025-07-01T20:00:00.000Z",
-        "end_time": "2025-07-01T23:00:00.000Z"
       }
     },
     {
@@ -232,48 +283,49 @@
       "exampleResponse": {}
     },
     {
+      "method": "GET",
+      "path": "/api/events/:event_id/attendees",
+      "description": "Retrieve all attendees for an event.",
+      "exampleRequest": {
+        "method": "GET",
+        "url": "/api/events/1/attendees"
+      },
+      "exampleResponse": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_id": 1,
+          "status": "attending"
+        }
+      ]
+    },
+    {
       "method": "POST",
       "path": "/api/events/:event_id/attendees",
-      "description": "Add a user as an attendee to an event.",
+      "description": "Add an attendee to an event.",
       "exampleRequest": {
         "method": "POST",
-        "url": "/api/events/2/attendees",
+        "url": "/api/events/1/attendees",
         "body": {
           "user_id": 1,
-          "event_id": 2,
+          "event_id": 1,
           "status": "attending"
         }
       },
       "exampleResponse": {
         "id": 1,
         "user_id": 1,
-        "event_id": 2,
+        "event_id": 1,
         "status": "attending"
       }
     },
     {
-      "method": "GET",
-      "path": "/api/events/:event_id/attendees",
-      "description": "Retrieve all attendees for an event.",
-      "exampleRequest": {
-        "method": "GET",
-        "url": "/api/events/2/attendees"
-      },
-      "exampleResponse": [
-        {
-          "user_id": 1,
-          "event_id": 2,
-          "status": "attending"
-        }
-      ]
-    },
-    {
       "method": "PATCH",
       "path": "/api/events/:event_id/attendees/:user_id",
-      "description": "Update an attendee's status for an event (e.g., cancel RSVP).",
+      "description": "Update an attendee's status for an event.",
       "exampleRequest": {
         "method": "PATCH",
-        "url": "/api/events/2/attendees/1",
+        "url": "/api/events/1/attendees/1",
         "body": {
           "status": "cancelled"
         }
@@ -281,7 +333,7 @@
       "exampleResponse": {
         "id": 1,
         "user_id": 1,
-        "event_id": 2,
+        "event_id": 1,
         "status": "cancelled"
       }
     }

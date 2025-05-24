@@ -5,6 +5,10 @@ import {
   CreateUserBody,
   UpdateUserBody,
 } from '../types/user.types';
+import { hashPassword } from '../utils/hashPassword';
+import { validateEmail } from '../utils/validateEmail';
+import { validateUsername } from '../utils/validateUsername';
+import jwt from 'jsonwebtoken';
 
 export const createUser =
   (userModel: UserModel) =>
@@ -17,8 +21,20 @@ export const createUser =
     if (!username || !password || !email || !name) {
       return next({ status: 400, message: 'Missing required user fields' });
     }
+    if (!validateUsername(username)) {
+      return next({ status: 400, message: 'Invalid username format' });
+    }
+    if (!validateEmail(email)) {
+      return next({ status: 400, message: 'Invalid email format' });
+    }
+    if (password.length < 15 || password.length > 128) {
+      return next({
+        status: 400,
+        message: 'Password must be between 15 and 128 characters',
+      });
+    }
     try {
-      const hashed_password = password;
+      const hashed_password = await hashPassword(password);
       const user = await userModel.addUser({
         username,
         hashed_password,
@@ -29,7 +45,17 @@ export const createUser =
 
       const { hashed_password: _, ...userWithoutPassword } = user;
 
-      res.status(201).json(userWithoutPassword);
+      const token = jwt.sign(
+        { userId: user.id, username: user.username, role: user.role },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '1h' }
+      );
+
+      res.status(201).json({
+        message: 'Signup successful',
+        token,
+        ...userWithoutPassword,
+      });
     } catch (error: any) {
       if (error.code === '23505') {
         return next({

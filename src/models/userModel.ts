@@ -18,6 +18,14 @@ export const userModel: UserModel = {
     return result.rows[0];
   },
 
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.query('SELECT * FROM users WHERE username = $1', [
+      username,
+    ]);
+
+    return result.rows[0];
+  },
+
   async addUser(user: UserInput): Promise<User> {
     const { username, hashed_password, email, name, role } = user;
 
