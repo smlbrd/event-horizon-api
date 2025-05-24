@@ -108,7 +108,7 @@ describe('Utility Functions & Middleware', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(400);
 
@@ -126,7 +126,7 @@ describe('Utility Functions & Middleware', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(400);
 
@@ -213,7 +213,7 @@ describe('User API', () => {
         role: 'user',
       };
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -235,7 +235,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -272,7 +272,7 @@ describe('User API', () => {
         role: 'user',
       };
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
       const userId = createRes.body.id;
@@ -302,7 +302,7 @@ describe('User API', () => {
         role: 'user',
       };
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
       const userId = createRes.body.id;
@@ -346,7 +346,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(incompleteUser)
         .expect(400);
 
@@ -362,7 +362,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(400);
 
@@ -381,7 +381,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(400);
 
@@ -401,7 +401,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(duplicateUser)
         .expect(409);
 
@@ -421,7 +421,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(duplicateUser)
         .expect(409);
 
@@ -442,7 +442,7 @@ describe('User API', () => {
       };
 
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(secureUser)
         .expect(201);
 
@@ -469,7 +469,7 @@ describe('User API', () => {
       };
 
       const createRes = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -492,7 +492,7 @@ describe('User API', () => {
         role: 'staff',
       };
       const res = await request(app)
-        .post('/api/users')
+        .post('/api/register')
         .send(newUser)
         .expect(201);
 
@@ -511,7 +511,7 @@ describe('Authentication API', () => {
         name: 'Test Hash',
       };
 
-      await request(app).post('/api/users').send(newUser).expect(201);
+      await request(app).post('/api/register').send(newUser).expect(201);
 
       const loginRes = await request(app)
         .post('/api/login')
