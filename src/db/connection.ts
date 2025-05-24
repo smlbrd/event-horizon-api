@@ -16,7 +16,8 @@ const config: PoolConfig = {};
 
 if (ENV === 'production') {
   config.connectionString = process.env.DATABASE_URL;
-  config.max = 5;
+  config.ssl = { rejectUnauthorized: false };
+  config.max = 10;
 }
 
 const pool = new Pool(config);
