@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { JwtPayload } from '../types/jwtPayload.types';
 
 export function authenticateJWT(
   req: Request,
@@ -11,10 +12,10 @@ export function authenticateJWT(
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, process.env.JWT_SECRET as string, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
       if (err) return res.status(403).json({ message: 'Invalid token' });
 
-      (req as any).user = user;
+      req.user = decoded as JwtPayload;
 
       next();
     });
