@@ -8,6 +8,7 @@ import {
 import { hashPassword } from '../utils/hashPassword';
 import { validateEmail } from '../utils/validateEmail';
 import { validateUsername } from '../utils/validateUsername';
+import jwt from 'jsonwebtoken';
 
 export const createUser =
   (userModel: UserModel) =>
@@ -44,7 +45,17 @@ export const createUser =
 
       const { hashed_password: _, ...userWithoutPassword } = user;
 
-      res.status(201).json(userWithoutPassword);
+      const token = jwt.sign(
+        { userId: user.id, username: user.username, role: user.role },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '1h' }
+      );
+
+      res.status(201).json({
+        message: 'Signup successful',
+        token,
+        ...userWithoutPassword,
+      });
     } catch (error: any) {
       if (error.code === '23505') {
         return next({
