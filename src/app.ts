@@ -6,8 +6,11 @@ import {
   serverErrorHandler,
   notFoundErrorHandler,
 } from './middleware/errorHandler';
+import helmet from 'helmet';
 
 const app = express();
+
+app.use(helmet());
 
 app.use(express.json());
 app.use('/api', appRoutes);
