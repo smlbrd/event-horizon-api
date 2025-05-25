@@ -35,7 +35,9 @@ async function seed({
         location VARCHAR(255) NOT NULL,
         price NUMERIC NOT NULL,
         start_time TIMESTAMPTZ NOT NULL,
-        end_time TIMESTAMPTZ NOT NULL
+        end_time TIMESTAMPTZ NOT NULL,
+        image_url TEXT,
+        image_alt_text TEXT
       );
     `);
 
@@ -73,17 +75,28 @@ async function seed({
 
     if (eventData.length) {
       const eventValues = eventData.map(
-        ({ title, description, location, price, start_time, end_time }) => [
+        ({
           title,
           description,
           location,
           price,
           start_time,
           end_time,
+          image_url,
+          image_alt_text,
+        }) => [
+          title,
+          description,
+          location,
+          price,
+          start_time,
+          end_time,
+          image_url || null,
+          image_alt_text || null,
         ]
       );
       const eventInsert = format(
-        'INSERT INTO events (title, description, location, price, start_time, end_time) VALUES %L;',
+        'INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text) VALUES %L;',
         eventValues
       );
       await db.query(eventInsert);

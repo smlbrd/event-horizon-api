@@ -5,6 +5,8 @@ export interface EventInput {
   price: number;
   start_time: string;
   end_time: string;
+  image_url?: string;
+  image_alt_text?: string;
 }
 
 export interface Event extends EventInput {
