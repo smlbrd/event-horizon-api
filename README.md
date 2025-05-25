@@ -1,6 +1,6 @@
 # Event Horizon Api
 
-This API is hosted online [here](https://event-horizon-api-nuzf.onrender.com/api).
+This API is hosted online [here]([https://event-horizon-api-nuzf.onrender.com/api](https://event-horizon-api.up.railway.app/api/).
 
 > Note: It is a free tier of hosting, so it may take up to a minute to spin up for the first time.
 
