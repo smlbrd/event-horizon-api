@@ -11,9 +11,9 @@ const runSeed = async () => {
       eventData: eventDevData,
       attendeeData: attendeeDevData,
     });
-    console.log('Development database seeded successfully.');
+    console.log('Seeding complete.');
   } catch (err) {
-    console.error('Error seeding development database:', err);
+    console.error('Error seeding database:', err);
   } finally {
     await db.end();
   }
