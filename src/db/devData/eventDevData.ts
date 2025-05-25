@@ -10,9 +10,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-07-01T07:30:00.000Z',
     end_time: '2025-07-01T08:30:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/silhouette-of-person-raising-its-hand-268134/',
+      'https://unsplash.com/photos/silhouette-photography-of-woman-doing-yoga-F2qh3yjz6Jk',
     image_alt_text:
-      'Silhouette of a person sat on a beach, raising their hands towards the sunset',
+      'Silhouette of a person performing a deep yoga pose, raising their hands towards the sunset',
   },
   {
     title: 'Tech Careers Networking Night',
@@ -22,10 +22,9 @@ export const eventDevData: EventInput[] = [
     price: 10.0,
     start_time: '2025-08-15T18:00:00.000Z',
     end_time: '2025-08-15T21:00:00.000Z',
-    image_url:
-      'https://www.pexels.com/photo/close-up-photography-of-yellow-green-red-and-brown-plastic-cones-on-white-lined-surface-163064/',
+    image_url: 'https://unsplash.com/photos/diagram-RIvSJTiGwLc',
     image_alt_text:
-      'Game pieces in a variety of colours, connected by lines on a board',
+      'Many cubes float in virtual space, connected to each other by lines, representing a network of technology and innovation.',
   },
   {
     title: 'Artisan Food Market',
@@ -35,10 +34,9 @@ export const eventDevData: EventInput[] = [
     price: 0.0,
     start_time: '2025-09-10T10:00:00.000Z',
     end_time: '2025-09-10T15:00:00.000Z',
-    image_url:
-      'https://www.pexels.com/photo/woman-standing-in-front-of-assorted-fruits-displayed-375896/',
+    image_url: 'https://unsplash.com/photos/vegetable-stand-photo-pRJhn4MbsMM',
     image_alt_text:
-      'A person in padded jacket browses stalls filled with a variety of fruits and vegetables',
+      'A number of market stalls filled with a variety of fruits and vegetables.',
   },
   {
     title: 'Financial Planning Workshop',
@@ -48,9 +46,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-07-10T17:00:00.000Z',
     end_time: '2025-07-10T19:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/person-putting-coin-in-a-piggy-bank-3833052/',
+      'https://unsplash.com/photos/green-plant-on-brown-round-coins-lZ_4nPFKcV8',
     image_alt_text:
-      "A person's hand inserting a coin into a transparent piggy bank",
+      'Green leaves growing from a pile of coins, symbolizing financial growth and investment.',
   },
   {
     title: 'Summer Music Festival',
@@ -60,9 +58,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-08-20T15:00:00.000Z',
     end_time: '2025-08-20T22:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/dj-controlling-disc-in-front-of-crowd-1537637/',
+      'https://unsplash.com/photos/silhouette-of-people-raising-their-hands-3SlZRXeSVPY',
     image_alt_text:
-      'A DJ in front of a crowd at an outdoor music festival. The stage is surrounded by plants and trees.',
+      'A silhouette of someone crowdsurfing at a concert. Their hands and legs are raised, as they are carried by the crowd.',
   },
   {
     title: 'Coding for Beginners',
@@ -72,9 +70,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-09-01T13:00:00.000Z',
     end_time: '2025-09-01T16:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/woman-wearing-red-and-black-checkered-blouse-using-macbook-1181472/',
+      'https://unsplash.com/photos/a-cat-sitting-in-front-of-a-computer-monitor-KrYbarbAx5s',
     image_alt_text:
-      'Two people sitting side by side at a desk, working on laptops.',
+      'A cat sitting in front of a computer monitor, looking at programming code.',
   },
   {
     title: 'Photography Walk',
@@ -84,9 +82,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-10-05T09:00:00.000Z',
     end_time: '2025-10-05T12:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/man-in-brown-jacket-sitting-on-chair-in-front-of-fruit-stand-3646171/',
+      'https://unsplash.com/photos/grayscale-photo-of-a-long-coated-dog-lying-on-the-floor-xh-aTtGuJws',
     image_alt_text:
-      'A person sat at a table outside a cafe. The cafe windows are framed red and purple flowers, and a stack of oranges fills the window.',
+      'A long-haired dog lies on wet pavement in front of a narrow alleyway.',
   },
   {
     title: 'Sustainability Panel Discussion',
@@ -96,9 +94,9 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-11-12T18:30:00.000Z',
     end_time: '2025-11-12T20:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/person-holding-a-green-plant-1072824/',
+      'https://unsplash.com/photos/low-angle-photography-of-building-WsEAiVwGrwo',
     image_alt_text:
-      'A person holding a small green plant in their hands, with a blurred background of greenery.',
+      'A photo of a tall building full of plants, where sharp architecture contrasts with flowing natural growth.',
   },
   {
     title: 'Family Movie Night',
@@ -109,9 +107,8 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-12-03T19:00:00.000Z',
     end_time: '2025-12-03T21:30:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/people-sitting-on-bench-near-body-of-water-4881672/',
-    image_alt_text:
-      'A group of people sitting outdoors on blankets, surrounded by candles and fairy lights, watching a movie on a large projector screen.',
+      'https://unsplash.com/photos/a-close-up-of-a-bowl-of-popcorn-FeYoQ6DaU0M',
+    image_alt_text: 'A close-up view of popcorn.',
   },
   {
     title: 'Winter Holiday Fair',
@@ -121,8 +118,8 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-12-24T14:00:00.000Z',
     end_time: '2025-12-24T20:00:00.000Z',
     image_url:
-      'https://www.pexels.com/photo/people-walking-on-snowed-street-at-night-15822249/',
+      'https://unsplash.com/photos/people-walking-on-street-with-food-stall-at-night-Vg5UtOYawqM',
     image_alt_text:
-      'A snowy street at night, with people walking under festive lights and decorations',
+      'A snowy street at night, with people walking under festive lights and decorations.',
   },
 ];
