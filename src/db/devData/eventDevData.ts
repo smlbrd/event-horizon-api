@@ -10,7 +10,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-07-01T07:30:00.000Z',
     end_time: '2025-07-01T08:30:00.000Z',
     image_url:
-      'https://unsplash.com/photos/silhouette-photography-of-woman-doing-yoga-F2qh3yjz6Jk',
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'Silhouette of a person performing a deep yoga pose, raising their hands towards the sunset',
   },
@@ -22,7 +22,8 @@ export const eventDevData: EventInput[] = [
     price: 10.0,
     start_time: '2025-08-15T18:00:00.000Z',
     end_time: '2025-08-15T21:00:00.000Z',
-    image_url: 'https://unsplash.com/photos/diagram-RIvSJTiGwLc',
+    image_url:
+      'https://images.unsplash.com/photo-1664526936810-ec0856d31b92?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'Many cubes float in virtual space, connected to each other by lines, representing a network of technology and innovation.',
   },
@@ -34,7 +35,8 @@ export const eventDevData: EventInput[] = [
     price: 0.0,
     start_time: '2025-09-10T10:00:00.000Z',
     end_time: '2025-09-10T15:00:00.000Z',
-    image_url: 'https://unsplash.com/photos/vegetable-stand-photo-pRJhn4MbsMM',
+    image_url:
+      'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'A number of market stalls filled with a variety of fruits and vegetables.',
   },
@@ -46,7 +48,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-07-10T17:00:00.000Z',
     end_time: '2025-07-10T19:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/green-plant-on-brown-round-coins-lZ_4nPFKcV8',
+      'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'Green leaves growing from a pile of coins, symbolizing financial growth and investment.',
   },
@@ -58,7 +60,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-08-20T15:00:00.000Z',
     end_time: '2025-08-20T22:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/silhouette-of-people-raising-their-hands-3SlZRXeSVPY',
+      'https://images.unsplash.com/photo-1611338522368-3fccf11b4afd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dette-of-people-raising-their-hands-3SlZRXeSVPY',
     image_alt_text:
       'A silhouette of someone crowdsurfing at a concert. Their hands and legs are raised, as they are carried by the crowd.',
   },
@@ -70,7 +72,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-09-01T13:00:00.000Z',
     end_time: '2025-09-01T16:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/a-cat-sitting-in-front-of-a-computer-monitor-KrYbarbAx5s',
+      'https://images.unsplash.com/photo-1709547228697-fa1f424a3f39?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dplash.com/photos/a-cat-sitting-in-front-of-a-computer-monitor-KrYbarbAx5s',
     image_alt_text:
       'A cat sitting in front of a computer monitor, looking at programming code.',
   },
@@ -82,7 +84,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-10-05T09:00:00.000Z',
     end_time: '2025-10-05T12:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/grayscale-photo-of-a-long-coated-dog-lying-on-the-floor-xh-aTtGuJws',
+      'https://images.unsplash.com/photo-1523572989266-8239d24ebb68?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dhttps://unsplash.com/photos/grayscale-photo-of-a-long-coated-dog-lying-on-the-floor-xh-aTtGuJws',
     image_alt_text:
       'A long-haired dog lies on wet pavement in front of a narrow alleyway.',
   },
@@ -94,7 +96,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-11-12T18:30:00.000Z',
     end_time: '2025-11-12T20:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/low-angle-photography-of-building-WsEAiVwGrwo',
+      'https://images.unsplash.com/photo-1521708266372-b3547456cc2d?q=80&w=2038&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'A photo of a tall building full of plants, where sharp architecture contrasts with flowing natural growth.',
   },
@@ -107,7 +109,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-12-03T19:00:00.000Z',
     end_time: '2025-12-03T21:30:00.000Z',
     image_url:
-      'https://unsplash.com/photos/a-close-up-of-a-bowl-of-popcorn-FeYoQ6DaU0M',
+      'https://plus.unsplash.com/premium_photo-1667425092311-80658bb0c05f?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text: 'A close-up view of popcorn.',
   },
   {
@@ -118,7 +120,7 @@ export const eventDevData: EventInput[] = [
     start_time: '2025-12-24T14:00:00.000Z',
     end_time: '2025-12-24T20:00:00.000Z',
     image_url:
-      'https://unsplash.com/photos/people-walking-on-street-with-food-stall-at-night-Vg5UtOYawqM',
+      'https://images.unsplash.com/photo-1575410813944-8fe3f5dca6fe?q=80&w=1936&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     image_alt_text:
       'A snowy street at night, with people walking under festive lights and decorations.',
   },
