@@ -36,8 +36,16 @@ export const createEvent =
     res: Response,
     next: NextFunction
   ) => {
-    const { title, description, location, price, start_time, end_time } =
-      req.body;
+    const {
+      title,
+      description,
+      location,
+      price,
+      start_time,
+      end_time,
+      image_url,
+      image_alt_text,
+    } = req.body;
     if (
       !title ||
       !description ||
@@ -57,6 +65,8 @@ export const createEvent =
         price,
         start_time,
         end_time,
+        image_url,
+        image_alt_text,
       });
       res.status(201).json(event);
     } catch (error) {

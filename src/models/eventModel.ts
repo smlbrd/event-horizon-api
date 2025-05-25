@@ -13,7 +13,7 @@ const VALID_ATTENDEE_STATUSES = ['attending', 'cancelled'];
 export const eventModel = {
   async getEvents(): Promise<Event[]> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time FROM events'
+      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events'
     );
     return result.rows.map((row) => ({
       ...row,
@@ -23,7 +23,7 @@ export const eventModel = {
 
   async getEventById(id: number): Promise<Event> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time FROM events WHERE id = $1',
+      'SELECT id, title, description, location, price, start_time, end_time,  image_url, image_alt_text FROM events WHERE id = $1',
       [id]
     );
     if (!result.rows[0]) throw makeError('Event not found', 404);
@@ -34,7 +34,16 @@ export const eventModel = {
   },
 
   async addEvent(event: EventInput): Promise<Event> {
-    const { title, description, location, price, start_time, end_time } = event;
+    const {
+      title,
+      description,
+      location,
+      price,
+      start_time,
+      end_time,
+      image_url,
+      image_alt_text,
+    } = event;
     if (
       !title ||
       !description ||
@@ -46,10 +55,19 @@ export const eventModel = {
       throw makeError('Missing required fields', 400);
     }
     const result = await db.query(
-      `INSERT INTO events (title, description, location, price, start_time, end_time)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, title, description, location, price, start_time, end_time`,
-      [title, description, location, price, start_time, end_time]
+      `INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text`,
+      [
+        title,
+        description,
+        location,
+        price,
+        start_time,
+        end_time,
+        image_url,
+        image_alt_text,
+      ]
     );
     const row = result.rows[0];
     return {
@@ -69,6 +87,8 @@ export const eventModel = {
         | 'price'
         | 'start_time'
         | 'end_time'
+        | 'image_url'
+        | 'image_alt_text'
       >
     >
   ): Promise<Event> {
@@ -84,7 +104,7 @@ export const eventModel = {
     values.push(id);
 
     const result = await db.query(
-      `UPDATE events SET ${setClause} WHERE id = $${values.length} RETURNING id, title, description, location, price, start_time, end_time`,
+      `UPDATE events SET ${setClause} WHERE id = $${values.length} RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text`,
       values
     );
     if (!result.rows[0]) throw makeError('Event not found', 404);
