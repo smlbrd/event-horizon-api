@@ -62,12 +62,12 @@ describe('Utility Functions & Middleware', () => {
 
   describe('checkExists utility function', () => {
     it('should return true if the record exists', async () => {
-      const exists = await checkExists('users', 1);
+      const exists = await checkExists('users', '1');
       expect(exists).to.be.true;
     });
 
     it('should return false if the record does not exist', async () => {
-      const exists = await checkExists('users', 99999);
+      const exists = await checkExists('users', '99999');
       expect(exists).to.be.false;
     });
   });
