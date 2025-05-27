@@ -26,11 +26,15 @@ export const loginUser =
     try {
       const user = await userModel.getUserByUsername(username);
       if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res
+          .status(401)
+          .json({ message: 'Incorrect username or password' });
       }
       const match = await comparePassword(password, user.hashed_password);
       if (!match) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res
+          .status(401)
+          .json({ message: 'Incorrect username or password' });
       }
 
       const { hashed_password, ...userWithoutPassword } = user;
