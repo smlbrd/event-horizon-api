@@ -7,7 +7,6 @@ import {
 } from '../types/user.types';
 import { hashPassword } from '../utils/hashPassword';
 import { validateEmail } from '../utils/validateEmail';
-import { validateUsername } from '../utils/validateUsername';
 import jwt from 'jsonwebtoken';
 
 export const createUser =
@@ -17,12 +16,9 @@ export const createUser =
     res: Response,
     next: NextFunction
   ) => {
-    const { username, password, email, name } = req.body;
-    if (!username || !password || !email || !name) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return next({ status: 400, message: 'Missing required user fields' });
-    }
-    if (!validateUsername(username)) {
-      return next({ status: 400, message: 'Invalid username format' });
     }
     if (!validateEmail(email)) {
       return next({ status: 400, message: 'Invalid email format' });
@@ -36,17 +32,15 @@ export const createUser =
     try {
       const hashed_password = await hashPassword(password);
       const user = await userModel.addUser({
-        username,
-        hashed_password,
         email,
-        name,
+        hashed_password,
         role: 'user',
       });
 
       const { hashed_password: _, ...userWithoutPassword } = user;
 
       const token = jwt.sign(
-        { userId: user.id, username: user.username, role: user.role },
+        { userId: user.id, email: user.email, role: user.role },
         process.env.JWT_SECRET as string,
         { expiresIn: '1h' }
       );
@@ -60,7 +54,7 @@ export const createUser =
       if (error.code === '23505') {
         return next({
           status: 409,
-          message: 'Username or email already exists',
+          message: 'An account with this email already exists',
         });
       }
       next(error);
@@ -72,7 +66,7 @@ export const getUser =
   async (req: Request<UserParams>, res: Response, next: NextFunction) => {
     const { user_id } = req.params;
     try {
-      const user = await userModel.getUserById(Number(user_id));
+      const user = await userModel.getUserById(user_id);
       const { hashed_password: _, ...userWithoutPassword } = user;
       res.status(200).json(userWithoutPassword);
     } catch (error: any) {
@@ -88,13 +82,17 @@ export const updateUser =
     next: NextFunction
   ) => {
     const { user_id } = req.params;
-    const { email, name, role } = req.body;
+    const { email, role } = req.body;
     try {
-      const updated = await userModel.updateUser(Number(user_id), {
-        email,
-        name,
-        role,
-      });
+      const updateFields: Partial<{
+        email: string;
+        role: 'user' | 'staff' | 'admin';
+      }> = {};
+      if (email !== undefined) updateFields.email = email;
+      if (role !== undefined)
+        updateFields.role = role as 'user' | 'staff' | 'admin';
+
+      const updated = await userModel.updateUser(user_id, updateFields);
       res.status(200).json(updated);
     } catch (error: any) {
       next(error);
@@ -106,7 +104,7 @@ export const deleteUser =
   async (req: Request<UserParams>, res: Response, next: NextFunction) => {
     const { user_id } = req.params;
     try {
-      await userModel.deleteUser(Number(user_id));
+      await userModel.deleteUser(user_id);
       res.status(204).send();
     } catch (error: any) {
       next(error);

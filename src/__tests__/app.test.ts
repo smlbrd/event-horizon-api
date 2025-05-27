@@ -101,10 +101,8 @@ describe('Utility Functions & Middleware', () => {
   describe('validateEmail utility function', () => {
     it('should return 400 if email is invalid', async () => {
       const newUser = {
-        username: 'bademail',
-        password: 'averysecurepassword',
         email: 'notanemail',
-        name: 'Bad Email',
+        password: 'averysecurepassword',
       };
 
       const res = await request(app)
@@ -113,24 +111,6 @@ describe('Utility Functions & Middleware', () => {
         .expect(400);
 
       expect(res.body).to.have.property('message', 'Invalid email format');
-    });
-  });
-
-  describe('validateUsername utility function', () => {
-    it('should return 400 if username is invalid', async () => {
-      const newUser = {
-        username: 'bad!user',
-        password: 'averysecurepassword',
-        email: 'baduser@example.com',
-        name: 'Bad User',
-      };
-
-      const res = await request(app)
-        .post('/api/register')
-        .send(newUser)
-        .expect(400);
-
-      expect(res.body).to.have.property('message', 'Invalid username format');
     });
   });
 
@@ -206,10 +186,8 @@ describe('User API', () => {
   describe('User creation and retrieval', () => {
     it('should create a new user', async () => {
       const newUser = {
-        username: 'testuser',
-        password: 'testpasswordtest',
         email: 'test@example.com',
-        name: 'test account',
+        password: 'testpasswordtest',
         role: 'user',
       };
       const res = await request(app)
@@ -218,19 +196,15 @@ describe('User API', () => {
         .expect(201);
 
       res.body.should.have.property('id');
-      res.body.should.have.property('username', newUser.username);
       res.body.should.have.property('email', newUser.email);
-      res.body.should.have.property('name', newUser.name);
       res.body.should.have.property('role', newUser.role);
       res.body.should.not.have.property('hashed_password');
     });
 
     it('should create a new user with hashed password', async () => {
       const newUser = {
-        username: 'pin_lee',
-        password: 'KillJoyBloodLustTechRiot',
         email: 'pinlee@preservationaux.com',
-        name: 'Pin-Lee',
+        password: 'KillJoyBloodLustTechRiot',
         role: 'user',
       };
 
@@ -240,9 +214,7 @@ describe('User API', () => {
         .expect(201);
 
       res.body.should.have.property('id', 4);
-      res.body.should.have.property('username', newUser.username);
       res.body.should.have.property('email', newUser.email);
-      res.body.should.have.property('name', newUser.name);
       res.body.should.have.property('role', newUser.role);
       res.body.should.not.have.property('password');
       res.body.should.not.have.property('hashed_password');
@@ -254,9 +226,7 @@ describe('User API', () => {
       const res = await request(app).get(`/api/users/${userId}`).expect(200);
 
       res.body.should.have.property('id', userId);
-      res.body.should.have.property('username');
       res.body.should.have.property('email');
-      res.body.should.have.property('name');
       res.body.should.have.property('role');
       res.body.should.not.have.property('hashed_password');
     });
@@ -265,11 +235,8 @@ describe('User API', () => {
   describe('User API update and delete', () => {
     it('should update an existing user', async () => {
       const newUser = {
-        username: 'update_me',
-        password: 'testpasswordtest',
         email: 'update_me@example.com',
-        name: 'Update Me',
-        role: 'user',
+        password: 'testpasswordtest',
       };
       const createRes = await request(app)
         .post('/api/register')
@@ -278,10 +245,9 @@ describe('User API', () => {
       const userId = createRes.body.id;
 
       const updatedFields = {
-        email: 'updated@example.com',
-        name: 'Updated Name',
-        role: 'staff',
+        email: 'updatedemailaddress@example.com',
       };
+
       const updateRes = await request(app)
         .patch(`/api/users/${userId}`)
         .send(updatedFields)
@@ -289,17 +255,12 @@ describe('User API', () => {
 
       updateRes.body.should.have.property('id', userId);
       updateRes.body.should.have.property('email', updatedFields.email);
-      updateRes.body.should.have.property('name', updatedFields.name);
-      updateRes.body.should.have.property('role', updatedFields.role);
     });
 
     it('should delete an existing user', async () => {
       const newUser = {
-        username: 'delete_me',
-        password: 'testpasswordtest',
         email: 'delete_me@example.com',
-        name: 'Delete Me',
-        role: 'user',
+        password: 'testpasswordtest',
       };
       const createRes = await request(app)
         .post('/api/register')
@@ -327,7 +288,7 @@ describe('User API', () => {
     it('should return 404 when updating a non-existent user', async () => {
       const updateRes = await request(app)
         .patch('/api/users/99999')
-        .send({ name: 'No One' })
+        .send({ email: 'nobody@nowhere.com' })
         .expect(404);
 
       updateRes.body.should.have.property('message', 'User not found');
@@ -339,10 +300,7 @@ describe('User API', () => {
 
     it('should return 400 when creating a user if required fields are missing', async () => {
       const incompleteUser = {
-        username: 'usernamebutnopassword',
-        email: 'usernamebutnopassword@example.com',
-        name: 'Incomplete User',
-        role: 'user',
+        email: 'emailbutnopassword@example.com',
       };
 
       const res = await request(app)
@@ -355,10 +313,8 @@ describe('User API', () => {
 
     it('should return 400 if password is too short', async () => {
       const newUser = {
-        username: 'shortpass',
-        password: '123',
         email: 'short@example.com',
-        name: 'Short Pass',
+        password: '123',
       };
 
       const res = await request(app)
@@ -374,10 +330,8 @@ describe('User API', () => {
 
     it('should return 400 if password is too long', async () => {
       const newUser = {
-        username: 'loooooooongpass',
-        password: 'a'.repeat(130),
         email: 'long@example.com',
-        name: 'Long Pass',
+        password: 'a'.repeat(130),
       };
 
       const res = await request(app)
@@ -391,33 +345,10 @@ describe('User API', () => {
       );
     });
 
-    it('should return 409 when creating a user if username already exists', async () => {
-      const duplicateUser = {
-        username: 'FreedomUnit',
-        password: 'sanctuary_moon1',
-        email: 'freedomunit1@thecompany.com',
-        name: 'FreedomUnit',
-        role: 'user',
-      };
-
-      const res = await request(app)
-        .post('/api/register')
-        .send(duplicateUser)
-        .expect(409);
-
-      res.body.should.have.property(
-        'message',
-        'Username or email already exists'
-      );
-    });
-
     it('should return 409 when creating a user if email already exists', async () => {
       const duplicateUser = {
-        username: 'anotheruser',
-        password: 'sanctuary_moon1',
         email: 'secunit238776431@thecompany.com',
-        name: 'FreedomUnit',
-        role: 'user',
+        password: 'sanctuary_moon123',
       };
 
       const res = await request(app)
@@ -427,7 +358,7 @@ describe('User API', () => {
 
       res.body.should.have.property(
         'message',
-        'Username or email already exists'
+        'An account with this email already exists'
       );
     });
   });
@@ -435,10 +366,8 @@ describe('User API', () => {
   describe('User API security', () => {
     it('should store a hashed password, not the plain password', async () => {
       const secureUser = {
-        username: 'test',
-        password: 'plaintextpassword',
         email: 'test@example.com',
-        name: 'Test',
+        password: 'plaintextpassword',
       };
 
       const res = await request(app)
@@ -446,9 +375,11 @@ describe('User API', () => {
         .send(secureUser)
         .expect(201);
 
+      const userId = res.body.id;
+
       const result = await db.query(
-        'SELECT hashed_password FROM users WHERE username = $1',
-        [secureUser.username]
+        'SELECT hashed_password FROM users WHERE id = $1',
+        [userId]
       );
 
       expect(result.rows).to.have.lengthOf(1);
@@ -461,11 +392,8 @@ describe('User API', () => {
 
     it('should never return password or hashed_password fields in user responses', async () => {
       const newUser = {
-        username: 'donotobservemypassword',
-        password: 'supersecretpassword',
         email: 'nopassword@example.com',
-        name: 'Do Not Perceive It',
-        role: 'user',
+        password: 'supersecretpassword',
       };
 
       const createRes = await request(app)
@@ -485,10 +413,8 @@ describe('User API', () => {
 
     it('should always create a user with role "user"', async () => {
       const newUser = {
-        username: 'testuser2',
-        password: 'testpasswordtest',
         email: 'test2@example.com',
-        name: 'Test2',
+        password: 'testpasswordtest',
         role: 'staff',
       };
       const res = await request(app)
@@ -505,47 +431,54 @@ describe('Authentication API', () => {
   describe('User login', () => {
     it('should verify a plain password against the stored hashed password', async () => {
       const newUser = {
-        username: 'hashtestcomparison',
-        password: 'testpasswordtest',
         email: 'test@example.com',
-        name: 'Test Hash',
+        password: 'testpasswordtest',
       };
 
       await request(app).post('/api/register').send(newUser).expect(201);
 
       const loginRes = await request(app)
         .post('/api/login')
-        .send({ username: newUser.username, password: newUser.password })
+        .send({ email: newUser.email, password: newUser.password })
         .expect(200);
 
       expect(loginRes.body).to.have.property('message', 'Login successful');
       expect(loginRes.body).to.have.property('user');
-      expect(loginRes.body.user).to.have.property('username', newUser.username);
+      expect(loginRes.body.user).to.have.property('email', newUser.email);
 
       const failRes = await request(app)
         .post('/api/login')
-        .send({ username: newUser.username, password: 'wrongpassword' })
+        .send({ email: newUser.email, password: 'wrongpassword' })
         .expect(401);
 
-      expect(failRes.body).to.have.property('message', 'Invalid credentials');
+      expect(failRes.body).to.have.property(
+        'message',
+        'Incorrect email or password'
+      );
     });
 
     it('should return a JWT on successful login', async () => {
       const loginRes = await request(app)
         .post('/api/login')
-        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
         .expect(200);
 
       expect(loginRes.body).to.have.property('token');
       const decoded = jwt.verify(loginRes.body.token, process.env.JWT_SECRET!);
       expect(decoded).to.have.property('userId');
-      expect(decoded).to.have.property('username', 'dr_mensah');
+      expect(decoded).to.have.property('email', 'mensah@preservationaux.com');
     });
 
     it('should allow access to protected route with valid token', async () => {
       const loginRes = await request(app)
         .post('/api/login')
-        .send({ username: 'dr_mensah', password: 'preservationalliance' })
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
         .expect(200);
 
       const token = loginRes.body.token;
@@ -556,27 +489,30 @@ describe('Authentication API', () => {
         .expect(200);
 
       expect(protectedRes.body).to.have.property('message', 'You have access!');
-      expect(protectedRes.body.user).to.have.property('username', 'dr_mensah');
+      expect(protectedRes.body.user).to.have.property(
+        'email',
+        'mensah@preservationaux.com'
+      );
     });
   });
 
   describe('User login error cases', () => {
-    it('should return 400 when username or password is missing', async () => {
+    it('should return 401 when username or password is missing', async () => {
       const res = await request(app)
         .post('/api/login')
         .send({ username: 'testuser' })
         .expect(400);
 
-      res.body.should.have.property('message', 'Missing username or password');
+      res.body.should.have.property('message', 'Missing email or password');
     });
 
     it('should return 401 for invalid credentials', async () => {
       const res = await request(app)
         .post('/api/login')
-        .send({ username: 'nonexistent', password: 'wrongpassword' })
+        .send({ email: 'nonexistent@nowhere.com', password: 'wrongpassword' })
         .expect(401);
 
-      res.body.should.have.property('message', 'Invalid credentials');
+      res.body.should.have.property('message', 'Incorrect email or password');
     });
 
     it('should return 401 when trying to access to protected route without token', async () => {

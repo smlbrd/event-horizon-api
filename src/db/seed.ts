@@ -19,11 +19,9 @@ async function seed({
     await db.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
         hashed_password VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'staff', 'user'))
+        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'staff', 'user')) DEFAULT 'user'
       );
     `);
 
@@ -58,16 +56,10 @@ async function seed({
       for (const user of userData) {
         const hashed_password = await hashPassword(user.password);
 
-        userValues.push([
-          user.username,
-          hashed_password,
-          user.email,
-          user.name,
-          user.role,
-        ]);
+        userValues.push([user.email, hashed_password, user.role]);
       }
       const userInsert = format(
-        'INSERT INTO users (username, hashed_password, email, name, role) VALUES %L;',
+        'INSERT INTO users (email, hashed_password, role) VALUES %L;',
         userValues
       );
       await db.query(userInsert);

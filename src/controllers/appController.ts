@@ -19,28 +19,24 @@ export const loginUser =
     res: Response,
     next: NextFunction
   ) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Missing username or password' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Missing email or password' });
     }
     try {
-      const user = await userModel.getUserByUsername(username);
+      const user = await userModel.getUserByEmail(email);
       if (!user) {
-        return res
-          .status(401)
-          .json({ message: 'Incorrect username or password' });
+        return res.status(401).json({ message: 'Incorrect email or password' });
       }
       const match = await comparePassword(password, user.hashed_password);
       if (!match) {
-        return res
-          .status(401)
-          .json({ message: 'Incorrect username or password' });
+        return res.status(401).json({ message: 'Incorrect email or password' });
       }
 
       const { hashed_password, ...userWithoutPassword } = user;
 
       const token = jwt.sign(
-        { userId: user.id, username: user.username, role: user.role },
+        { userId: user.id, email: user.email, role: user.role },
         process.env.JWT_SECRET as string,
         { expiresIn: '1h' }
       );
@@ -51,6 +47,7 @@ export const loginUser =
         user: userWithoutPassword,
       } as LoginUserResponse & { token: string });
     } catch (error) {
+      console.log('Error logging in user:', error);
       next(error);
     }
   };

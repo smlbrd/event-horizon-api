@@ -2,24 +2,18 @@ import { UserSeedInput } from '../../types/user.types';
 
 export const userTestData: UserSeedInput[] = [
   {
-    username: 'dr_mensah',
-    password: 'preservationalliance',
     email: 'mensah@preservationaux.com',
-    name: 'Dr. Ayda Mensah',
+    password: 'preservationalliance',
     role: 'admin',
   },
   {
-    username: 'gurathin',
-    password: 'the_real_treasure_was_the_friends_we_made_along_the_way',
     email: 'gurathin@preservationaux.com',
-    name: 'Gurathin',
+    password: 'the_real_treasure_was_the_friends_we_made_along_the_way',
     role: 'staff',
   },
   {
-    username: 'FreedomUnit',
-    password: 'Sanctuary_Moon1',
     email: 'secunit238776431@thecompany.com',
-    name: 'FreedomUnit',
+    password: 'Sanctuary_Moon1',
     role: 'user',
   },
 ];

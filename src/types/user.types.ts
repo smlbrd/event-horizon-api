@@ -1,30 +1,24 @@
 export interface UserSeedInput {
-  username: string;
-  password: string;
   email: string;
-  name: string;
+  password: string;
   role: 'admin' | 'staff' | 'user';
 }
 
 export interface UserInput {
-  username: string;
-  hashed_password: string;
   email: string;
-  name: string;
+  hashed_password: string;
   role: 'admin' | 'staff' | 'user';
 }
 
 export interface User extends UserInput {
-  id: number;
+  id: string;
 }
 
-export type UserParams = { user_id: number };
+export type UserParams = { user_id: string };
 
 export type CreateUserBody = {
-  username: string;
-  password: string;
   email: string;
-  name: string;
+  password: string;
 };
 
 export type UpdateUserBody = {
@@ -34,7 +28,7 @@ export type UpdateUserBody = {
 };
 
 export type LoginUserBody = {
-  username: string;
+  email: string;
   password: string;
 };
 
@@ -45,9 +39,9 @@ export type LoginUserResponse = {
 
 export interface UserModel {
   getUsers(): Promise<User[]>;
-  getUserById(id: number): Promise<User>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserById(id: string): Promise<User>;
+  getUserByEmail(email: string): Promise<User>;
   addUser(user: UserInput): Promise<User>;
-  updateUser(id: number, fields: Partial<UserInput>): Promise<User>;
-  deleteUser(id: number): Promise<void>;
+  updateUser(id: string, fields: Partial<UserInput>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
 }
