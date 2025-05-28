@@ -8,7 +8,7 @@ export const eventTestData: EventInput[] = [
     price: 0.0,
     start_time: '2025-07-01T20:00:00.000Z',
     end_time: '2025-07-01T23:00:00.000Z',
-    created_by: '1',
+    created_by: 1,
   },
   {
     title: 'Bonding and You: A Planetary Survey Workshop',
@@ -18,7 +18,7 @@ export const eventTestData: EventInput[] = [
     price: 100.0,
     start_time: '2025-08-15T10:00:00.000Z',
     end_time: '2025-08-15T18:00:00.000Z',
-    created_by: '1',
+    created_by: 1,
   },
   {
     title: 'Planetary Survey',
@@ -27,6 +27,6 @@ export const eventTestData: EventInput[] = [
     price: 5.0,
     start_time: '2025-09-10T11:00:00.000Z',
     end_time: '2025-09-10T16:00:00.000Z',
-    created_by: '2',
+    created_by: 2,
   },
 ];

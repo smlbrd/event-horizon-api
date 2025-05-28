@@ -77,6 +77,7 @@ async function seed({
           end_time,
           image_url,
           image_alt_text,
+          created_by,
         }) => [
           title,
           description,
@@ -86,10 +87,11 @@ async function seed({
           end_time,
           image_url || null,
           image_alt_text || null,
+          created_by,
         ]
       );
       const eventInsert = format(
-        'INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text) VALUES %L;',
+        'INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by) VALUES %L;',
         eventValues
       );
       await db.query(eventInsert);

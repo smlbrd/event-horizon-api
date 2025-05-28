@@ -7,7 +7,7 @@ export interface EventInput {
   end_time: string;
   image_url?: string;
   image_alt_text?: string;
-  created_by: string;
+  created_by: number;
 }
 
 export interface Event extends EventInput {
@@ -17,8 +17,8 @@ export interface Event extends EventInput {
 export type EventParams = { event_id: string };
 
 export interface EventAttendee {
-  user_id: string;
-  event_id: string;
+  user_id: string | number;
+  event_id: string | number;
   status: string;
 }
 
