@@ -122,14 +122,21 @@ export const deleteEvent =
 export const addAttendee =
   (eventModel: EventModel) =>
   async (
-    req: Request<EventParams, {}, { user_id: string; status: string }>,
+    req: Request<EventParams, {}, { status: string }>,
     res: Response,
     next: NextFunction
   ) => {
     const event_id = req.params.event_id;
-    const { user_id, status } = req.body;
+    const { status } = req.body;
+    const user = (req as any).user;
 
-    if (user_id === undefined || status === undefined) {
+    if (!user || !user.userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const user_id = user.userId;
+
+    if (status === undefined) {
       return next({ status: 400, message: 'Missing required fields' });
     }
 
@@ -186,6 +193,22 @@ export const updateAttendeeStatus =
   ) => {
     const { event_id, user_id } = req.params;
     const { status } = req.body;
+    const user = (req as any).user;
+
+    if (!user || !user.userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    if (
+      user.userId !== user_id &&
+      user.role !== 'admin' &&
+      user.role !== 'staff'
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: cannot update another user's status" });
+    }
+
     try {
       const attendee = await eventModel.updateAttendeeStatus(
         event_id,
