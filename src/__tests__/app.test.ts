@@ -660,7 +660,7 @@ describe.only('Event API', () => {
     });
   });
 
-  describe.only('Event API update and delete', () => {
+  describe('Event API update and delete', () => {
     it('should update an existing event', async () => {
       const newEvent = {
         title: 'Update Me',
@@ -730,14 +730,29 @@ describe.only('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
       const eventId = createRes.body.id;
 
-      await request(app).delete(`/api/events/${eventId}`).expect(204);
+      await request(app)
+        .delete(`/api/events/${eventId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(204);
 
       await request(app).get(`/api/events/${eventId}`).expect(404);
     });
