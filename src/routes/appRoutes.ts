@@ -16,9 +16,7 @@ router.post('/register', createUser(userModel));
 router.post('/login', loginUser(userModel));
 
 router.get('/protected', authenticateJWT, (req, res) => {
-  res
-    .status(200)
-    .json({ message: 'You have access!', user: (req as any).user });
+  res.status(200).json({ message: 'You have access!', user: req.user });
 });
 
 export default router;

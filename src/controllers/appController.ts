@@ -55,7 +55,6 @@ export const loginUser =
       if (error.status === 401) {
         return res.status(401).json({ message: 'Incorrect email or password' });
       }
-      console.log('Error logging in user:', error);
       next(error);
     }
   };

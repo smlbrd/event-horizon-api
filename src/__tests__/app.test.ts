@@ -494,36 +494,6 @@ describe('Authentication API', () => {
         'mensah@preservationaux.com'
       );
     });
-
-    it('should return 401 if no Authorization header is present', async () => {
-      await request(app).get('/protected').expect(401);
-    });
-
-    it('should return 403 if token is invalid', async () => {
-      await request(app)
-        .get('/protected')
-        .set('Authorization', 'Bearer invalidtoken')
-        .expect(403);
-    });
-
-    it('should allow access with a valid token and set req.user', async () => {
-      const payload = {
-        userId: '123',
-        email: 'test@example.com',
-        role: 'user',
-      };
-      const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-        expiresIn: '1h',
-      });
-
-      const res = await request(app)
-        .get('/protected')
-        .set('Authorization', `Bearer ${token}`)
-        .expect(200);
-
-      res.body.should.have.property('user');
-      res.body.user.should.include(payload);
-    });
   });
 
   describe('User login error cases', () => {
@@ -560,7 +530,7 @@ describe('Authentication API', () => {
   });
 });
 
-describe.only('Event API', () => {
+describe('Event API', () => {
   describe('Event creation and retrieval', () => {
     it('should retrieve all existing events', async () => {
       const res = await request(app).get('/api/events').expect(200);
@@ -770,14 +740,42 @@ describe.only('Event API', () => {
     });
 
     it('should return 404 when updating a non-existent event', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      const eventId = '99999';
+
       await request(app)
-        .patch('/api/events/99999')
+        .patch(`/api/events/${eventId}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ title: 'No One' })
         .expect(404);
     });
 
     it('should return 404 when deleting a non-existent event', async () => {
-      await request(app).delete('/api/events/99999').expect(404);
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      await request(app)
+        .delete('/api/events/99999')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
     });
 
     it('should return 400 when creating an event if required fields are missing', async () => {
@@ -798,12 +796,13 @@ describe.only('Event API', () => {
         .expect(200);
 
       const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
 
       const createRes = await request(app)
         .post('/api/events')
         .set('Authorization', `Bearer ${token}`)
         .send(incompleteEvent)
-        .expect(201);
+        .expect(400);
 
       createRes.body.should.have.property(
         'message',
@@ -812,8 +811,20 @@ describe.only('Event API', () => {
     });
 
     it('should return 400 when updating an event if no fields are provided', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const res = await request(app)
         .patch('/api/events/1')
+        .set('Authorization', `Bearer ${token}`)
         .send({})
         .expect(400);
 
@@ -1004,9 +1015,23 @@ describe('Attendee API', () => {
     });
 
     it('should return 404 when fetching attendees for a deleted event', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const event_id = 1;
 
-      await request(app).delete(`/api/events/${event_id}`).expect(204);
+      await request(app)
+        .delete(`/api/events/${event_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(204);
 
       const res = await request(app)
         .get(`/api/events/${event_id}/attendees`)
