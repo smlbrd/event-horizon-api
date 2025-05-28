@@ -21,7 +21,7 @@ export const eventModel = {
     }));
   },
 
-  async getEventById(id: number): Promise<Event> {
+  async getEventById(id: string): Promise<Event> {
     const result = await db.query(
       'SELECT id, title, description, location, price, start_time, end_time,  image_url, image_alt_text FROM events WHERE id = $1',
       [id]
@@ -77,7 +77,7 @@ export const eventModel = {
   },
 
   async updateEvent(
-    id: number,
+    id: string,
     fields: Partial<
       Pick<
         Event,
@@ -115,7 +115,7 @@ export const eventModel = {
     };
   },
 
-  async deleteEvent(id: number): Promise<void> {
+  async deleteEvent(id: string): Promise<void> {
     if (!(await checkExists('events', id))) {
       throw makeError('Event not found', 404);
     }
@@ -160,7 +160,7 @@ export const eventModel = {
     return result.rows[0];
   },
 
-  async getAttendeesForEvent(event_id: number): Promise<EventAttendee[]> {
+  async getAttendeesForEvent(event_id: string): Promise<EventAttendee[]> {
     if (!(await checkExists('events', event_id))) {
       throw makeError('Event not found', 404);
     }
@@ -171,7 +171,7 @@ export const eventModel = {
     return result.rows;
   },
 
-  async getEventsForUser(user_id: number) {
+  async getEventsForUser(user_id: string) {
     if (!(await checkExists('users', user_id))) {
       throw makeError('User not found', 404);
     }
@@ -189,8 +189,8 @@ export const eventModel = {
   },
 
   async updateAttendeeStatus(
-    event_id: number,
-    user_id: number,
+    event_id: string,
+    user_id: string,
     status: UpdateAttendeeStatusBody['status']
   ): Promise<EventAttendee> {
     if (!VALID_ATTENDEE_STATUSES.includes(status)) {

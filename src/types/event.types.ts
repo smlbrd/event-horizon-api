@@ -10,14 +10,14 @@ export interface EventInput {
 }
 
 export interface Event extends EventInput {
-  id: number;
+  id: string;
 }
 
-export type EventParams = { event_id: number };
+export type EventParams = { event_id: string };
 
 export interface EventAttendee {
-  user_id: number;
-  event_id: number;
+  user_id: string;
+  event_id: string;
   status: string;
 }
 
@@ -27,16 +27,16 @@ export interface UpdateAttendeeStatusBody {
 
 export interface EventModel {
   getEvents(): Promise<Event[]>;
-  getEventById(id: number): Promise<Event>;
+  getEventById(id: string): Promise<Event>;
   addEvent(event: EventInput): Promise<Event>;
-  updateEvent(id: number, fields: Partial<EventInput>): Promise<Event>;
-  deleteEvent(id: number): Promise<void>;
+  updateEvent(id: string, fields: Partial<EventInput>): Promise<Event>;
+  deleteEvent(id: string): Promise<void>;
   addAttendee(attendee: EventAttendee): Promise<EventAttendee>;
-  getAttendeesForEvent(id: number): Promise<EventAttendee[]>;
-  getEventsForUser(user_id: number): Promise<Event[]>;
+  getAttendeesForEvent(id: string): Promise<EventAttendee[]>;
+  getEventsForUser(user_id: string): Promise<Event[]>;
   updateAttendeeStatus(
-    event_id: number,
-    user_id: number,
+    event_id: string,
+    user_id: string,
     status: UpdateAttendeeStatusBody['status']
   ): Promise<EventAttendee>;
 }

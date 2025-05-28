@@ -22,7 +22,7 @@ export const getEventDetails =
   async (req: Request<EventParams>, res: Response, next: NextFunction) => {
     const { event_id } = req.params;
     try {
-      const event = await eventModel.getEventById(Number(event_id));
+      const event = await eventModel.getEventById(event_id);
       res.status(200).json(event);
     } catch (error) {
       next(error);
@@ -89,10 +89,7 @@ export const updateEvent =
     }
 
     try {
-      const updatedEvent = await eventModel.updateEvent(
-        Number(event_id),
-        fields
-      );
+      const updatedEvent = await eventModel.updateEvent(event_id, fields);
       res.status(200).json(updatedEvent);
     } catch (error) {
       next(error);
@@ -104,7 +101,7 @@ export const deleteEvent =
   async (req: Request<EventParams>, res: Response, next: NextFunction) => {
     const { event_id } = req.params;
     try {
-      await eventModel.deleteEvent(Number(event_id));
+      await eventModel.deleteEvent(event_id);
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -114,11 +111,11 @@ export const deleteEvent =
 export const addAttendee =
   (eventModel: EventModel) =>
   async (
-    req: Request<EventParams, {}, { user_id: number; status: string }>,
+    req: Request<EventParams, {}, { user_id: string; status: string }>,
     res: Response,
     next: NextFunction
   ) => {
-    const event_id = Number(req.params.event_id);
+    const event_id = req.params.event_id;
     const { user_id, status } = req.body;
 
     if (user_id === undefined || status === undefined) {
@@ -140,7 +137,7 @@ export const addAttendee =
 export const getAttendeesForEvent =
   (eventModel: EventModel) =>
   async (req: Request<EventParams>, res: Response, next: NextFunction) => {
-    const event_id = Number(req.params.event_id);
+    const event_id = req.params.event_id;
     try {
       const attendees = await eventModel.getAttendeesForEvent(event_id);
       res.status(200).json(attendees);
@@ -156,7 +153,7 @@ export const getEventsForUser =
     res: Response,
     next: NextFunction
   ) => {
-    const user_id = Number(req.params.user_id);
+    const user_id = req.params.user_id;
     try {
       const events = await eventModel.getEventsForUser(user_id);
       res.status(200).json(events);
@@ -180,8 +177,8 @@ export const updateAttendeeStatus =
     const { status } = req.body;
     try {
       const attendee = await eventModel.updateAttendeeStatus(
-        Number(event_id),
-        Number(user_id),
+        event_id,
+        user_id,
         status
       );
       res.status(200).json(attendee);
