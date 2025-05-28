@@ -503,8 +503,6 @@ describe('Authentication API', () => {
         .send({ email: 'mensah@preservationaux.com', password: '' })
         .expect(400);
 
-      // console.log(res.body);
-
       res.body.should.have.property('message', 'Missing email or password');
     });
 

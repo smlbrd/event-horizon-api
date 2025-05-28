@@ -3,7 +3,7 @@ import { UserSeedInput } from '../../types/user.types';
 export const userDevData: UserSeedInput[] = [
   {
     email: 'leila.ahmadi@eventhorizon.com',
-    password: 'LeilaPass2024!',
+    password: 'LeilaPass2024!!',
     role: 'admin',
   },
   {
@@ -13,7 +13,7 @@ export const userDevData: UserSeedInput[] = [
   },
   {
     email: 'mingyu.zhang@eventhorizon.com',
-    password: 'MingyuZhang!88',
+    password: 'MingyuZhang!88!',
     role: 'staff',
   },
   {
@@ -23,37 +23,37 @@ export const userDevData: UserSeedInput[] = [
   },
   {
     email: 'lucas.silva@example.com',
-    password: 'LucasSilva@321',
+    password: 'LucasSilva@321!',
     role: 'user',
   },
   {
     email: 'aanya.kapoor@example.com',
-    password: 'AanyaK2024*',
+    password: 'AanyaK2024*!!!',
     role: 'user',
   },
   {
     email: 'noah.martin@test.com',
-    password: 'NoahM!pass',
+    password: 'NoahM!pass2024!',
     role: 'user',
   },
   {
     email: 'alexis.tan@example.com',
-    password: 'AlexisT!2025',
+    password: 'AlexisT!2025!!',
     role: 'user',
   },
   {
     email: 'jamal.ali@example.com',
-    password: 'AliSecurePass!',
+    password: 'AliSecurePass!!',
     role: 'user',
   },
   {
     email: 'sofia.giannopoulos@example.com',
-    password: 'SofiaGian#2025',
+    password: 'SofiaGian#2025!',
     role: 'user',
   },
   {
     email: 'morgan.lee@example.com',
-    password: 'MorganLee2025',
+    password: 'MorganLee2025!!',
     role: 'user',
   },
 ];
