@@ -7,6 +7,7 @@ export interface EventInput {
   end_time: string;
   image_url?: string;
   image_alt_text?: string;
+  created_by: string;
 }
 
 export interface Event extends EventInput {

@@ -46,6 +46,10 @@ export const createEvent =
       image_url,
       image_alt_text,
     } = req.body;
+
+    const user = (req as any).user;
+    const created_by = user?.id;
+
     if (
       !title ||
       !description ||
@@ -53,7 +57,8 @@ export const createEvent =
       price === null ||
       price === undefined ||
       !start_time ||
-      !end_time
+      !end_time ||
+      !created_by
     ) {
       return next({ status: 400, message: 'Missing required event fields' });
     }
@@ -67,6 +72,7 @@ export const createEvent =
         end_time,
         image_url,
         image_alt_text,
+        created_by,
       });
       res.status(201).json(event);
     } catch (error) {

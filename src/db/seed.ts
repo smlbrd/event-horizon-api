@@ -35,7 +35,8 @@ async function seed({
         start_time TIMESTAMPTZ NOT NULL,
         end_time TIMESTAMPTZ NOT NULL,
         image_url TEXT,
-        image_alt_text TEXT
+        image_alt_text TEXT,
+        created_by INTEGER REFERENCES users(id)
       );
     `);
 

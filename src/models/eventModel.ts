@@ -13,7 +13,7 @@ const VALID_ATTENDEE_STATUSES = ['attending', 'cancelled'];
 export const eventModel = {
   async getEvents(): Promise<Event[]> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events ORDER BY start_time DESC'
+      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events ORDER BY start_time ASC'
     );
     return result.rows.map((row) => ({
       ...row,
@@ -43,6 +43,7 @@ export const eventModel = {
       end_time,
       image_url,
       image_alt_text,
+      created_by,
     } = event;
     if (
       !title ||
@@ -55,9 +56,9 @@ export const eventModel = {
       throw makeError('Missing required fields', 400);
     }
     const result = await db.query(
-      `INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text`,
+      `INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by,)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text, created_by,`,
       [
         title,
         description,
@@ -67,6 +68,7 @@ export const eventModel = {
         end_time,
         image_url,
         image_alt_text,
+        created_by,
       ]
     );
     const row = result.rows[0];
@@ -180,7 +182,7 @@ export const eventModel = {
       FROM events e
       JOIN event_attendees a ON a.event_id = e.id
       WHERE a.user_id = $1
-      ORDER BY start_time DESC`,
+      ORDER BY start_time ASC`,
       [user_id]
     );
     return result.rows.map((row) => ({
