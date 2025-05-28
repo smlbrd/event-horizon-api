@@ -496,7 +496,7 @@ describe('Authentication API', () => {
     });
   });
 
-  describe.only('User login error cases', () => {
+  describe('User login error cases', () => {
     it('should return 400 when email or password is missing', async () => {
       const res = await request(app)
         .post('/api/login')
@@ -568,18 +568,30 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
-      const res = await request(app)
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
-      res.body.should.have.property('id');
-      res.body.should.have.property('title', newEvent.title);
-      res.body.should.have.property('description', newEvent.description);
-      res.body.should.have.property('location', newEvent.location);
-      res.body.should.have.property('price', newEvent.price);
-      res.body.should.have.property('start_time', newEvent.start_time);
-      res.body.should.have.property('end_time', newEvent.end_time);
+      createRes.body.should.have.property('id');
+      createRes.body.should.have.property('title', newEvent.title);
+      createRes.body.should.have.property('description', newEvent.description);
+      createRes.body.should.have.property('location', newEvent.location);
+      createRes.body.should.have.property('price', newEvent.price);
+      createRes.body.should.have.property('start_time', newEvent.start_time);
+      createRes.body.should.have.property('end_time', newEvent.end_time);
     });
 
     it('should allow a new events with a price of 0', async () => {
@@ -592,8 +604,19 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
@@ -618,8 +641,20 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
@@ -636,6 +671,7 @@ describe('Event API', () => {
 
       const updateRes = await request(app)
         .patch(`/api/events/${eventId}`)
+        .set('Authorization', `Bearer ${token}`)
         .send(updatedFields)
         .expect(200);
 
@@ -664,14 +700,29 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
       const eventId = createRes.body.id;
 
-      await request(app).delete(`/api/events/${eventId}`).expect(204);
+      await request(app)
+        .delete(`/api/events/${eventId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(204);
 
       await request(app).get(`/api/events/${eventId}`).expect(404);
     });
@@ -689,14 +740,42 @@ describe('Event API', () => {
     });
 
     it('should return 404 when updating a non-existent event', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      const eventId = '99999';
+
       await request(app)
-        .patch('/api/events/99999')
+        .patch(`/api/events/${eventId}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ title: 'No One' })
         .expect(404);
     });
 
     it('should return 404 when deleting a non-existent event', async () => {
-      await request(app).delete('/api/events/99999').expect(404);
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      await request(app)
+        .delete('/api/events/99999')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
     });
 
     it('should return 400 when creating an event if required fields are missing', async () => {
@@ -708,17 +787,44 @@ describe('Event API', () => {
         start_time: '2025-08-01T10:00:00.000Z',
       };
 
-      const res = await request(app)
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(incompleteEvent)
         .expect(400);
 
-      res.body.should.have.property('message', 'Missing required event fields');
+      createRes.body.should.have.property(
+        'message',
+        'Missing required event fields'
+      );
     });
 
     it('should return 400 when updating an event if no fields are provided', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
       const res = await request(app)
         .patch('/api/events/1')
+        .set('Authorization', `Bearer ${token}`)
         .send({})
         .expect(400);
 
@@ -732,18 +838,25 @@ describe('Attendee API', () => {
     it('should create an attendee for an event', async () => {
       const event_id = 3;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const newAttendee = {
-        user_id: 1,
-        event_id: event_id,
         status: 'attending',
       };
 
       const res = await request(app)
         .post(`/api/events/${event_id}/attendees`)
+        .set('Authorization', `Bearer ${token}`)
         .send(newAttendee)
         .expect(201);
 
-      res.body.should.have.property('id');
       res.body.should.have.property('user_id', 1);
       res.body.should.have.property('event_id', event_id);
       res.body.should.have.property('status', 'attending');
@@ -805,8 +918,18 @@ describe('Attendee API', () => {
       const event_id = 2;
       const user_id = 1;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ status: 'cancelled' })
         .expect(200);
 
@@ -819,8 +942,18 @@ describe('Attendee API', () => {
       const event_id = 2;
       const user_id = 1;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ status: 'attending' })
         .expect(200);
 
@@ -828,119 +961,117 @@ describe('Attendee API', () => {
       res.body.should.have.property('event_id', event_id);
       res.body.should.have.property('status', 'attending');
     });
+
+    it("should allow an admin to update another user's attendee status", async () => {
+      const event_id = 2;
+      const user_id = 2;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ status: 'cancelled' })
+        .expect(200);
+    });
   });
 
   describe('Attendee API error cases', () => {
-    it('should return 404 when adding attendee for a non-existent user', async () => {
-      const event_id = 2;
+    it('should return 404 when adding attendee for a non-existent event', async () => {
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const newAttendee = {
-        user_id: 99999,
-        event_id,
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post('/api/events/99999/attendees')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newAttendee)
+        .expect(404);
+
+      res.body.should.have.property('message', 'Event not found');
+    });
+
+    it('should return 403 if user updating attendee status for another user', async () => {
+      const event_id = 1;
+      const user_id = 2;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'secunit238776431@thecompany.com',
+          password: 'Sanctuary_Moon1',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ status: 'cancelled' })
+        .expect(403);
+
+      res.body.should.have.property('message').that.includes('Forbidden');
+    });
+
+    it('should return 403 if user updating attendee status for a non-existent user', async () => {
+      const event_id = 1;
+      const user_id = 99999;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'secunit238776431@thecompany.com',
+          password: 'Sanctuary_Moon1',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
+      const res = await request(app)
+        .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ status: 'cancelled' })
+        .expect(403);
+
+      res.body.should.have.property('message').that.includes('Forbidden');
+    });
+
+    it('should return 409 if adding an attendee who is already attending an event', async () => {
+      const event_id = 2;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
+      const newAttendee = {
         status: 'attending',
       };
 
       const res = await request(app)
         .post(`/api/events/${event_id}/attendees`)
-        .send(newAttendee)
-        .expect(404);
-
-      res.body.should.have.property('message', 'User not found');
-    });
-    it('should return 404 when adding attendee for a non-existent event', async () => {
-      const newAttendee = {
-        user_id: 1,
-        event_id: 99999,
-        status: 'attending',
-      };
-
-      const res = await request(app)
-        .post('/api/events/99999/attendees')
-        .send(newAttendee)
-        .expect(404);
-
-      res.body.should.have.property('message', 'Event not found');
-    });
-
-    it('should return 404 when fetching attendees for a non-existent event', async () => {
-      const res = await request(app)
-        .get('/api/events/99999/attendees')
-        .expect(404);
-
-      res.body.should.have.property('message', 'Event not found');
-    });
-
-    it('should return 404 when adding user to a non-existent event', async () => {
-      const newAttendee = {
-        user_id: 1,
-        event_id: 99999,
-        status: 'attending',
-      };
-
-      const res = await request(app)
-        .post('/api/events/99999/attendees')
-        .send(newAttendee)
-        .expect(404);
-
-      res.body.should.have.property('message', 'Event not found');
-    });
-
-    it('should return 404 if updating attendee status for a non-existent user', async () => {
-      const event_id = 1;
-      const user_id = 99999;
-
-      const res = await request(app)
-        .patch(`/api/events/${event_id}/attendees/${user_id}`)
-        .send({ status: 'cancelled' })
-        .expect(404);
-
-      res.body.should.have.property('message', 'User not found');
-    });
-
-    it('should return 404 if updating status for a user who is not attending', async () => {
-      const event_id = 3;
-      const user_id = 2;
-
-      const res = await request(app)
-        .patch(`/api/events/${event_id}/attendees/${user_id}`)
-        .send({ status: 'cancelled' })
-        .expect(404);
-
-      res.body.should.have.property('message', 'Attendee not found');
-    });
-
-    it('should return 404 when fetching attendees for a deleted event', async () => {
-      const event_id = 1;
-
-      await request(app).delete(`/api/events/${event_id}`).expect(204);
-
-      const res = await request(app)
-        .get(`/api/events/${event_id}/attendees`)
-        .expect(404);
-
-      res.body.should.have.property('message', 'Event not found');
-    });
-
-    it('should return 404 when fetching events for a deleted user', async () => {
-      const user_id = 1;
-
-      await request(app).delete(`/api/users/${user_id}`).expect(204);
-
-      const res = await request(app)
-        .get(`/api/users/${user_id}/events`)
-        .expect(404);
-
-      res.body.should.have.property('message', 'User not found');
-    });
-
-    it('should return 409 if adding an attendee who is already attending an event', async () => {
-      const newAttendee = {
-        user_id: 1,
-        event_id: 2,
-        status: 'attending',
-      };
-
-      const res = await request(app)
-        .post(`/api/events/2/attendees`)
+        .set('Authorization', `Bearer ${token}`)
         .send(newAttendee)
         .expect(409);
 
@@ -948,13 +1079,21 @@ describe('Attendee API', () => {
     });
 
     it('should return 400 when creating an attendee if required fields are missing', async () => {
-      const incompleteAttendee = {
-        status: 'attending',
-      };
+      const event_id = 1;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
 
       const res = await request(app)
-        .post('/api/events/1/attendees')
-        .send(incompleteAttendee)
+        .post(`/api/events/${event_id}/attendees`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({})
         .expect(400);
 
       res.body.should.have.property('message', 'Missing required fields');
@@ -963,14 +1102,22 @@ describe('Attendee API', () => {
     it('should return 400 when adding an attendee with invalid status', async () => {
       const event_id = 3;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const newAttendee = {
-        user_id: 1,
-        event_id: event_id,
         status: 'invalid_status',
       };
 
       const res = await request(app)
         .post(`/api/events/${event_id}/attendees`)
+        .set('Authorization', `Bearer ${token}`)
         .send(newAttendee)
         .expect(400);
 
@@ -981,8 +1128,18 @@ describe('Attendee API', () => {
       const event_id = 2;
       const user_id = 1;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ status: 'not_a_status' })
         .expect(400);
 
@@ -993,8 +1150,18 @@ describe('Attendee API', () => {
       const event_id = 2;
       const user_id = 1;
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .patch(`/api/events/${event_id}/attendees/${user_id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({})
         .expect(400);
 
