@@ -13,7 +13,7 @@ const VALID_ATTENDEE_STATUSES = ['attending', 'cancelled'];
 export const eventModel = {
   async getEvents(): Promise<Event[]> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events'
+      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events ORDER BY start_time DESC'
     );
     return result.rows.map((row) => ({
       ...row,
@@ -179,7 +179,8 @@ export const eventModel = {
       `SELECT e.*
       FROM events e
       JOIN event_attendees a ON a.event_id = e.id
-      WHERE a.user_id = $1`,
+      WHERE a.user_id = $1
+      ORDER BY start_time DESC`,
       [user_id]
     );
     return result.rows.map((row) => ({
