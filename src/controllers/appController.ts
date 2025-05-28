@@ -20,15 +20,20 @@ export const loginUser =
     next: NextFunction
   ) => {
     const { email, password } = req.body;
-    if (!email || !password) {
+
+    if (!email || !password || email.trim() === '' || password.trim() === '') {
       return res.status(400).json({ message: 'Missing email or password' });
     }
+
     try {
       const user = await userModel.getUserByEmail(email);
+
       if (!user) {
         return res.status(401).json({ message: 'Incorrect email or password' });
       }
+
       const match = await comparePassword(password, user.hashed_password);
+
       if (!match) {
         return res.status(401).json({ message: 'Incorrect email or password' });
       }
@@ -46,7 +51,10 @@ export const loginUser =
         token,
         user: userWithoutPassword,
       } as LoginUserResponse & { token: string });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.status === 401) {
+        return res.status(401).json({ message: 'Incorrect email or password' });
+      }
       console.log('Error logging in user:', error);
       next(error);
     }

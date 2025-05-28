@@ -19,8 +19,8 @@ async function seed({
     await db.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
-        hashed_password VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
+        hashed_password VARCHAR(255) NOT NULL,
         role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'staff', 'user')) DEFAULT 'user'
       );
     `);

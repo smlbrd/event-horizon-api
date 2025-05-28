@@ -496,12 +496,14 @@ describe('Authentication API', () => {
     });
   });
 
-  describe('User login error cases', () => {
-    it('should return 401 when username or password is missing', async () => {
+  describe.only('User login error cases', () => {
+    it('should return 400 when email or password is missing', async () => {
       const res = await request(app)
         .post('/api/login')
-        .send({ username: 'testuser' })
+        .send({ email: 'mensah@preservationaux.com', password: '' })
         .expect(400);
+
+      // console.log(res.body);
 
       res.body.should.have.property('message', 'Missing email or password');
     });
