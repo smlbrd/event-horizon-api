@@ -51,14 +51,15 @@ export const eventModel = {
       !location ||
       price === undefined ||
       !start_time ||
-      !end_time
+      !end_time ||
+      !created_by
     ) {
       throw makeError('Missing required fields', 400);
     }
     const result = await db.query(
-      `INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by,)
+      `INSERT INTO events (title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text, created_by,`,
+      RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text, created_by`,
       [
         title,
         description,

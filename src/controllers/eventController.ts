@@ -36,6 +36,14 @@ export const createEvent =
     res: Response,
     next: NextFunction
   ) => {
+    const user = (req as any).user;
+
+    if (!user || !user.userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const created_by = user?.userId;
+
     const {
       title,
       description,
@@ -46,9 +54,6 @@ export const createEvent =
       image_url,
       image_alt_text,
     } = req.body;
-
-    const user = (req as any).user;
-    const created_by = user?.id;
 
     if (
       !title ||

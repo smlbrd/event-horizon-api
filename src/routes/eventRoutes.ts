@@ -10,15 +10,16 @@ import {
   updateAttendeeStatus,
 } from '../controllers/eventController';
 import { eventModel } from '../models/eventModel';
+import { authenticateJWT } from '../middleware/authenticateJWT';
 
 const router = Router();
 
 router.get('/', getEvents(eventModel));
-router.post('/', createEvent(eventModel));
+router.post('/', authenticateJWT, createEvent(eventModel));
 
 router.get('/:event_id', getEventDetails(eventModel));
-router.patch('/:event_id', updateEvent(eventModel));
-router.delete('/:event_id', deleteEvent(eventModel));
+router.patch('/:event_id', authenticateJWT, updateEvent(eventModel));
+router.delete('/:event_id', authenticateJWT, deleteEvent(eventModel));
 
 router.post('/:event_id/attendees', addAttendee(eventModel));
 router.get('/:event_id/attendees', getAttendeesForEvent(eventModel));

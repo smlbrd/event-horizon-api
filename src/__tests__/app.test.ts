@@ -494,9 +494,39 @@ describe('Authentication API', () => {
         'mensah@preservationaux.com'
       );
     });
+
+    it('should return 401 if no Authorization header is present', async () => {
+      await request(app).get('/protected').expect(401);
+    });
+
+    it('should return 403 if token is invalid', async () => {
+      await request(app)
+        .get('/protected')
+        .set('Authorization', 'Bearer invalidtoken')
+        .expect(403);
+    });
+
+    it('should allow access with a valid token and set req.user', async () => {
+      const payload = {
+        userId: '123',
+        email: 'test@example.com',
+        role: 'user',
+      };
+      const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
+        expiresIn: '1h',
+      });
+
+      const res = await request(app)
+        .get('/protected')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      res.body.should.have.property('user');
+      res.body.user.should.include(payload);
+    });
   });
 
-  describe.only('User login error cases', () => {
+  describe('User login error cases', () => {
     it('should return 400 when email or password is missing', async () => {
       const res = await request(app)
         .post('/api/login')
@@ -530,7 +560,7 @@ describe('Authentication API', () => {
   });
 });
 
-describe('Event API', () => {
+describe.only('Event API', () => {
   describe('Event creation and retrieval', () => {
     it('should retrieve all existing events', async () => {
       const res = await request(app).get('/api/events').expect(200);
@@ -568,18 +598,30 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
-      const res = await request(app)
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      if (!token) throw new Error('No token returned from login');
+
+      const createRes = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
-      res.body.should.have.property('id');
-      res.body.should.have.property('title', newEvent.title);
-      res.body.should.have.property('description', newEvent.description);
-      res.body.should.have.property('location', newEvent.location);
-      res.body.should.have.property('price', newEvent.price);
-      res.body.should.have.property('start_time', newEvent.start_time);
-      res.body.should.have.property('end_time', newEvent.end_time);
+      createRes.body.should.have.property('id');
+      createRes.body.should.have.property('title', newEvent.title);
+      createRes.body.should.have.property('description', newEvent.description);
+      createRes.body.should.have.property('location', newEvent.location);
+      createRes.body.should.have.property('price', newEvent.price);
+      createRes.body.should.have.property('start_time', newEvent.start_time);
+      createRes.body.should.have.property('end_time', newEvent.end_time);
     });
 
     it('should allow a new events with a price of 0', async () => {
@@ -592,8 +634,19 @@ describe('Event API', () => {
         end_time: '2025-08-01T12:00:00.000Z',
       };
 
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
         .send(newEvent)
         .expect(201);
 
@@ -708,12 +761,26 @@ describe('Event API', () => {
         start_time: '2025-08-01T10:00:00.000Z',
       };
 
-      const res = await request(app)
-        .post('/api/events')
-        .send(incompleteEvent)
-        .expect(400);
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'mensah@preservationaux.com',
+          password: 'preservationalliance',
+        })
+        .expect(200);
 
-      res.body.should.have.property('message', 'Missing required event fields');
+      const token = loginRes.body.token;
+
+      const createRes = await request(app)
+        .post('/api/events')
+        .set('Authorization', `Bearer ${token}`)
+        .send(incompleteEvent)
+        .expect(201);
+
+      createRes.body.should.have.property(
+        'message',
+        'Missing required event fields'
+      );
     });
 
     it('should return 400 when updating an event if no fields are provided', async () => {

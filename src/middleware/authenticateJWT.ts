@@ -14,9 +14,7 @@ export function authenticateJWT(
 
     jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
       if (err) return res.status(403).json({ message: 'Invalid token' });
-
       req.user = decoded as JwtPayload;
-
       next();
     });
   } else {
