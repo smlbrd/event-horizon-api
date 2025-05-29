@@ -1,4 +1,4 @@
-# Event Horizon Api
+# Event Horizon API
 
 This API is hosted online [here](https://event-horizon-api.up.railway.app/api/).
 
