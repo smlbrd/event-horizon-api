@@ -134,4 +134,18 @@ export const eventDevData: EventInput[] = [
       'A snowy street at night, with people walking under festive lights and decorations.',
     created_by: 9,
   },
+  {
+    title: 'Rubber Duck Race',
+    description:
+      'A fantastic, bums-on-the-edge-of-seats, once-in-a-lifetime opportunity. See extreme ducks burning rubber as they rocket down the river rapids.',
+    location: 'Calm Brook',
+    price: 0,
+    start_time: '2026-06-01T14:12:15.000Z',
+    end_time: '2026-06-01T20:12:18.000Z',
+    image_url:
+      'https://cassette.sphdigital.com.sg/image/straitstimes/1fc03ee1fa5b46e47e0222aff0a76460071992f2d117e841568398960341d7aa',
+    image_alt_text:
+      'One majestic, victorious duck standing tall on a lake while another flat duck loser floats nearby.',
+    created_by: 10,
+  },
 ];
