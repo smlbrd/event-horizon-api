@@ -1,4 +1,6 @@
+import express from 'express';
 import chai, { expect } from 'chai';
+import sinon from 'sinon';
 import request from 'supertest';
 import db from '../db/connection';
 import seed from '../db/seed';
@@ -15,6 +17,8 @@ import {
 } from '../middleware/errorHandler';
 import { hashPassword } from '../utils/hashPassword';
 import { comparePassword } from '../utils/comparePassword';
+import { authEventAction } from '../middleware/authEventAction';
+import { eventModel } from '../models/eventModel';
 import jwt from 'jsonwebtoken';
 
 chai.should();
@@ -111,6 +115,88 @@ describe('Utility Functions & Middleware', () => {
         .expect(400);
 
       expect(res.body).to.have.property('message', 'Invalid email format');
+    });
+  });
+
+  describe('authEventAction middleware', () => {
+    let app: express.Express;
+    let getEventByIdStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      app = express();
+      app.use(express.json());
+
+      app.use((req, res, next) => {
+        req.user = req.body.user;
+        next();
+      });
+
+      app.patch('/events/:event_id', authEventAction, (req, res) => {
+        res.status(200).json({ message: 'Authorized!' });
+      });
+
+      getEventByIdStub = sinon.stub(eventModel, 'getEventById');
+    });
+
+    afterEach(() => {
+      getEventByIdStub.restore();
+    });
+
+    it('should allow the event creator to update an event', async () => {
+      getEventByIdStub.resolves({ id: 1, created_by: 42 });
+
+      const res = await request(app)
+        .patch('/events/1')
+        .send({ user: { userId: 42, role: 'user' } });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('message', 'Authorized!');
+    });
+
+    it('should allow staff to update an event', async () => {
+      getEventByIdStub.resolves({ id: 1, created_by: 99 });
+
+      const res = await request(app)
+        .patch('/events/1')
+        .send({ user: { userId: 2, role: 'staff' } });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('message', 'Authorized!');
+    });
+
+    it('should allow admin to update an event', async () => {
+      getEventByIdStub.resolves({ id: 1, created_by: 99 });
+
+      const res = await request(app)
+        .patch('/events/1')
+        .send({ user: { userId: 3, role: 'admin' } });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('message', 'Authorized!');
+    });
+
+    it('should forbid non-creator, non-staff, non-admin from updating an event', async () => {
+      getEventByIdStub.resolves({ id: 1, created_by: 99 });
+
+      const res = await request(app)
+        .patch('/events/1')
+        .send({ user: { userId: 4, role: 'user' } });
+
+      expect(res.status).to.equal(403);
+      expect(res.body)
+        .to.have.property('message')
+        .that.includes('Not authorized');
+    });
+
+    it('should return 404 if event not found', async () => {
+      getEventByIdStub.resolves(null);
+
+      const res = await request(app)
+        .patch('/events/999')
+        .send({ user: { userId: 1, role: 'admin' } });
+
+      expect(res.status).to.equal(404);
+      expect(res.body).to.have.property('message', 'Event not found');
     });
   });
 
