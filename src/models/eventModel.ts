@@ -107,7 +107,7 @@ export const eventModel = {
     values.push(id);
 
     const result = await db.query(
-      `UPDATE events SET ${setClause} WHERE id = $${values.length} RETURNING id, title, description, location, price, start_time, end_time,  image_url, image_alt_text`,
+      `UPDATE events SET ${setClause} WHERE id = $${values.length} RETURNING id, title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by`,
       values
     );
     if (!result.rows[0]) throw makeError('Event not found', 404);

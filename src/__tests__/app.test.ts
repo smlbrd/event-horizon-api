@@ -774,6 +774,7 @@ describe('Event API', () => {
         updatedFields.start_time
       );
       updateRes.body.should.have.property('end_time', updatedFields.end_time);
+      updateRes.body.should.have.property('created_by', 1);
     });
 
     it('should delete an existing event', async () => {
