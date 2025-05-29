@@ -922,7 +922,7 @@ describe('Event API', () => {
 
 describe('Attendee API', () => {
   describe('Attendee creation and retrieval', () => {
-    it('should create an attendee for an event', async () => {
+    it('should create an event attendee (admin acconut)', async () => {
       const event_id = 3;
 
       const loginRes = await request(app)
@@ -945,6 +945,33 @@ describe('Attendee API', () => {
         .expect(201);
 
       res.body.should.have.property('user_id', 1);
+      res.body.should.have.property('event_id', event_id);
+      res.body.should.have.property('status', 'attending');
+    });
+
+    it('should create an event attendee (user account)', async () => {
+      const event_id = 3;
+
+      const loginRes = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'secunit238776431@thecompany.com',
+          password: 'Sanctuary_Moon1',
+        })
+        .expect(200);
+      const token = loginRes.body.token;
+
+      const newAttendee = {
+        status: 'attending',
+      };
+
+      const res = await request(app)
+        .post(`/api/events/${event_id}/attendees`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(newAttendee)
+        .expect(201);
+
+      res.body.should.have.property('user_id', 3);
       res.body.should.have.property('event_id', event_id);
       res.body.should.have.property('status', 'attending');
     });

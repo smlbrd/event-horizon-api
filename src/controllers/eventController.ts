@@ -135,13 +135,13 @@ export const deleteEvent =
 export const addAttendee =
   (eventModel: EventModel) =>
   async (
-    req: Request<EventParams, {}, { status: string }>,
+    req: AuthReq<EventParams, {}, { status: string }>,
     res: Response,
     next: NextFunction
   ) => {
     const event_id = req.params.event_id;
     const { status } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     if (!user || !user.userId) {
       return res.status(401).json({ message: 'Authentication required' });

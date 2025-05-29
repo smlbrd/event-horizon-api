@@ -32,12 +32,7 @@ router.delete(
   deleteEvent(eventModel)
 );
 
-router.post(
-  '/:event_id/attendees',
-  authenticateJWT,
-  authEventAction,
-  addAttendee(eventModel)
-);
+router.post('/:event_id/attendees', authenticateJWT, addAttendee(eventModel));
 router.get('/:event_id/attendees', getAttendeesForEvent(eventModel));
 router.patch(
   '/:event_id/attendees/:user_id',
