@@ -96,7 +96,25 @@ export const updateEvent =
     const fields = req.body;
 
     if (!fields || Object.keys(fields).length === 0) {
-      return next({ status: 400, message: 'No fields provided for update' });
+      return res.status(400).json({ message: 'No fields provided for update' });
+    }
+
+    let event;
+    try {
+      event = await eventModel.getEventById(event_id);
+    } catch (error: any) {
+      if (error.status === 404) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+      return next(error);
+    }
+
+    const user = (req as any).user;
+    const isCreator = user && event.created_by === user.userId;
+    const isStaffOrAdmin =
+      user && (user.role === 'staff' || user.role === 'admin');
+    if (!isCreator && !isStaffOrAdmin) {
+      return res.status(403).json({ message: 'Authentication required' });
     }
 
     try {
@@ -111,7 +129,21 @@ export const deleteEvent =
   (eventModel: EventModel) =>
   async (req: Request<EventParams>, res: Response, next: NextFunction) => {
     const { event_id } = req.params;
+    const user = (req as any).user;
+
     try {
+      const event = await eventModel.getEventById(event_id);
+      if (!event) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+
+      const isCreator = user && event.created_by === user.userId;
+      const isStaffOrAdmin =
+        user && (user.role === 'staff' || user.role === 'admin');
+      if (!isCreator && !isStaffOrAdmin) {
+        return res.status(403).json({ message: 'Authentication required' });
+      }
+
       await eventModel.deleteEvent(event_id);
       res.status(204).send();
     } catch (error) {
