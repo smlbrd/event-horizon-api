@@ -185,7 +185,7 @@ describe('Utility Functions & Middleware', () => {
       expect(res.status).to.equal(403);
       expect(res.body)
         .to.have.property('message')
-        .that.includes('Not authorized');
+        .that.includes('Unauthorised');
     });
 
     it('should return 404 if event not found', async () => {
