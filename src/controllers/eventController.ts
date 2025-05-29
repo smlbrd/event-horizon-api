@@ -5,6 +5,7 @@ import {
   EventParams,
   UpdateAttendeeStatusBody,
 } from '../types/event.types';
+import { AuthReq } from '../types/authReq.types';
 
 export const getEvents =
   (eventModel: EventModel) =>
@@ -88,7 +89,7 @@ export const createEvent =
 export const updateEvent =
   (eventModel: EventModel) =>
   async (
-    req: Request<EventParams, {}, Partial<EventInput>>,
+    req: AuthReq<EventParams, {}, Partial<EventInput>>,
     res: Response,
     next: NextFunction
   ) => {
@@ -107,7 +108,7 @@ export const updateEvent =
 
 export const deleteEvent =
   (eventModel: EventModel) =>
-  async (req: Request<EventParams>, res: Response, next: NextFunction) => {
+  async (req: AuthReq<EventParams>, res: Response, next: NextFunction) => {
     const { event_id } = req.params;
     const user = (req as any).user;
 

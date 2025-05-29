@@ -142,7 +142,7 @@ describe('Utility Functions & Middleware', () => {
       getEventByIdStub.restore();
     });
 
-    it('allows the event creator to update an event', async () => {
+    it('should allow the event creator to update an event', async () => {
       getEventByIdStub.resolves({ id: 1, created_by: 42 });
 
       const res = await request(app)
@@ -153,7 +153,7 @@ describe('Utility Functions & Middleware', () => {
       expect(res.body).to.have.property('message', 'Authorized!');
     });
 
-    it('allows staff to update an event', async () => {
+    it('should allow staff to update an event', async () => {
       getEventByIdStub.resolves({ id: 1, created_by: 99 });
 
       const res = await request(app)
@@ -164,7 +164,7 @@ describe('Utility Functions & Middleware', () => {
       expect(res.body).to.have.property('message', 'Authorized!');
     });
 
-    it('allows admin to update an event', async () => {
+    it('should allow admin to update an event', async () => {
       getEventByIdStub.resolves({ id: 1, created_by: 99 });
 
       const res = await request(app)
@@ -175,7 +175,7 @@ describe('Utility Functions & Middleware', () => {
       expect(res.body).to.have.property('message', 'Authorized!');
     });
 
-    it('forbids non-creator, non-staff, non-admin from updating an event', async () => {
+    it('should forbid non-creator, non-staff, non-admin from updating an event', async () => {
       getEventByIdStub.resolves({ id: 1, created_by: 99 });
 
       const res = await request(app)
@@ -188,7 +188,7 @@ describe('Utility Functions & Middleware', () => {
         .that.includes('Not authorized');
     });
 
-    it('returns 404 if event not found', async () => {
+    it('should return 404 if event not found', async () => {
       getEventByIdStub.resolves(null);
 
       const res = await request(app)
