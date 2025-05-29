@@ -13,7 +13,7 @@ const VALID_ATTENDEE_STATUSES = ['attending', 'cancelled'];
 export const eventModel = {
   async getEvents(): Promise<Event[]> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text FROM events ORDER BY start_time ASC'
+      'SELECT id, title, description, location, price, start_time, end_time, image_url, image_alt_text, created_by FROM events ORDER BY start_time ASC'
     );
     return result.rows.map((row) => ({
       ...row,
@@ -23,7 +23,7 @@ export const eventModel = {
 
   async getEventById(id: string): Promise<Event> {
     const result = await db.query(
-      'SELECT id, title, description, location, price, start_time, end_time,  image_url, image_alt_text FROM events WHERE id = $1',
+      'SELECT id, title, description, location, price, start_time, end_time,  image_url, image_alt_text, created_by FROM events WHERE id = $1',
       [id]
     );
     if (!result.rows[0]) throw makeError('Event not found', 404);

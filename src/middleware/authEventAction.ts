@@ -16,10 +16,12 @@ export async function authEventAction(
     }
 
     const isCreator = user && event.created_by === user.userId;
+
     const isStaffOrAdmin =
       user && (user.role === 'staff' || user.role === 'admin');
+
     if (!isCreator && !isStaffOrAdmin) {
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: 'Unauthorised' });
     }
 
     (req as any).event = event;
