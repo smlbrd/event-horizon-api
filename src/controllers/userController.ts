@@ -16,31 +16,44 @@ export const createUser =
     res: Response,
     next: NextFunction
   ) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { email, password, name } = req.body;
+
+    const role = 'user';
+
+    if (!email || !password || !name) {
       return next({ status: 400, message: 'Missing required user fields' });
     }
+
     if (!validateEmail(email)) {
       return next({ status: 400, message: 'Invalid email format' });
     }
+
     if (password.length < 15 || password.length > 128) {
       return next({
         status: 400,
         message: 'Password must be between 15 and 128 characters',
       });
     }
+
     try {
       const hashed_password = await hashPassword(password);
+
       const user = await userModel.addUser({
         email,
         hashed_password,
-        role: 'user',
+        name,
+        role,
       });
 
       const { hashed_password: _, ...userWithoutPassword } = user;
 
       const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
+        {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
         process.env.JWT_SECRET as string,
         { expiresIn: '1h' }
       );
@@ -82,15 +95,24 @@ export const updateUser =
     next: NextFunction
   ) => {
     const { user_id } = req.params;
-    const { email, role } = req.body;
+    const { email, name } = req.body;
+
     try {
       const updateFields: Partial<{
         email: string;
-        role: 'user' | 'staff' | 'admin';
+        name: string;
       }> = {};
-      if (email !== undefined) updateFields.email = email;
-      if (role !== undefined)
-        updateFields.role = role as 'user' | 'staff' | 'admin';
+
+      if (email !== undefined) {
+        if (!validateEmail(email)) {
+          return next({ status: 400, message: 'Invalid email format' });
+        }
+        updateFields.email = email;
+      }
+
+      if (name !== undefined) {
+        updateFields.name = name;
+      }
 
       const updated = await userModel.updateUser(user_id, updateFields);
       res.status(200).json(updated);

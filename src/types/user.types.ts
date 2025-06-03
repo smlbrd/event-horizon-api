@@ -1,12 +1,14 @@
 export interface UserSeedInput {
   email: string;
   password: string;
+  name: string;
   role: 'admin' | 'staff' | 'user';
 }
 
 export interface UserInput {
   email: string;
   hashed_password: string;
+  name: string;
   role: 'admin' | 'staff' | 'user';
 }
 
@@ -19,6 +21,7 @@ export type UserParams = { user_id: string };
 export type CreateUserBody = {
   email: string;
   password: string;
+  name: string;
 };
 
 export type UpdateUserBody = {

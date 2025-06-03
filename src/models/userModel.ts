@@ -29,13 +29,13 @@ export const userModel: UserModel = {
   },
 
   async addUser(user: UserInput): Promise<User> {
-    const { email, hashed_password, role } = user;
+    const { email, hashed_password, name, role } = user;
 
     const result = await db.query(
-      `INSERT INTO users (email, hashed_password, role)
-      VALUES ($1, $2, $3)
+      `INSERT INTO users (email, hashed_password, name, role)
+      VALUES ($1, $2, $3, $4)
       RETURNING *`,
-      [email, hashed_password, role]
+      [email, hashed_password, name, role]
     );
 
     return result.rows[0];
@@ -43,14 +43,14 @@ export const userModel: UserModel = {
 
   async updateUser(
     id: string,
-    fields: Partial<Pick<User, 'email' | 'role'>>
+    fields: Partial<Pick<User, 'email' | 'name'>>
   ): Promise<User> {
     const keys = Object.keys(fields);
 
     if (keys.length === 0)
       throw makeError('No fields provided for update', 400);
 
-    const allowed = ['email', 'role'];
+    const allowed = ['email', 'name'];
 
     for (const key of keys) {
       if (!allowed.includes(key)) {

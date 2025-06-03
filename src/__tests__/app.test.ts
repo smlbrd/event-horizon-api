@@ -107,6 +107,7 @@ describe('Utility Functions & Middleware', () => {
       const newUser = {
         email: 'notanemail',
         password: 'averysecurepassword',
+        name: 'Invalid Email User',
       };
 
       const res = await request(app)
@@ -274,6 +275,7 @@ describe('User API', () => {
       const newUser = {
         email: 'test@example.com',
         password: 'testpasswordtest',
+        name: 'test user',
         role: 'user',
       };
       const res = await request(app)
@@ -283,6 +285,7 @@ describe('User API', () => {
 
       res.body.should.have.property('id');
       res.body.should.have.property('email', newUser.email);
+      res.body.should.have.property('name', newUser.name);
       res.body.should.have.property('role', newUser.role);
       res.body.should.not.have.property('hashed_password');
     });
@@ -291,6 +294,7 @@ describe('User API', () => {
       const newUser = {
         email: 'pinlee@preservationaux.com',
         password: 'KillJoyBloodLustTechRiot',
+        name: 'Pin-Lee',
         role: 'user',
       };
 
@@ -312,8 +316,9 @@ describe('User API', () => {
       const res = await request(app).get(`/api/users/${userId}`).expect(200);
 
       res.body.should.have.property('id', userId);
-      res.body.should.have.property('email');
-      res.body.should.have.property('role');
+      res.body.should.have.property('email', 'mensah@preservationaux.com');
+      res.body.should.have.property('name', 'Dr. Ayda Mensah');
+      res.body.should.have.property('role', 'admin');
       res.body.should.not.have.property('hashed_password');
     });
   });
@@ -323,11 +328,14 @@ describe('User API', () => {
       const newUser = {
         email: 'update_me@example.com',
         password: 'testpasswordtest',
+        name: 'update me',
       };
+
       const createRes = await request(app)
         .post('/api/register')
         .send(newUser)
         .expect(201);
+
       const userId = createRes.body.id;
 
       const updatedFields = {
@@ -340,6 +348,7 @@ describe('User API', () => {
         .expect(200);
 
       updateRes.body.should.have.property('id', userId);
+      updateRes.body.should.have.property('name', newUser.name);
       updateRes.body.should.have.property('email', updatedFields.email);
     });
 
@@ -347,11 +356,14 @@ describe('User API', () => {
       const newUser = {
         email: 'delete_me@example.com',
         password: 'testpasswordtest',
+        name: 'delete me',
       };
+
       const createRes = await request(app)
         .post('/api/register')
         .send(newUser)
         .expect(201);
+
       const userId = createRes.body.id;
 
       await request(app).delete(`/api/users/${userId}`).expect(204);
@@ -401,6 +413,7 @@ describe('User API', () => {
       const newUser = {
         email: 'short@example.com',
         password: '123',
+        name: 'shortpass',
       };
 
       const res = await request(app)
@@ -418,6 +431,7 @@ describe('User API', () => {
       const newUser = {
         email: 'long@example.com',
         password: 'a'.repeat(130),
+        name: 'longpass',
       };
 
       const res = await request(app)
@@ -435,6 +449,7 @@ describe('User API', () => {
       const duplicateUser = {
         email: 'secunit238776431@thecompany.com',
         password: 'sanctuary_moon123',
+        name: 'FreedomUnit',
       };
 
       const res = await request(app)
@@ -454,6 +469,7 @@ describe('User API', () => {
       const secureUser = {
         email: 'test@example.com',
         password: 'plaintextpassword',
+        name: 'plaintext user',
       };
 
       const res = await request(app)
@@ -480,6 +496,7 @@ describe('User API', () => {
       const newUser = {
         email: 'nopassword@example.com',
         password: 'supersecretpassword',
+        name: 'dontshowpassword',
       };
 
       const createRes = await request(app)
@@ -501,8 +518,10 @@ describe('User API', () => {
       const newUser = {
         email: 'test2@example.com',
         password: 'testpasswordtest',
+        name: 'bypass security',
         role: 'staff',
       };
+
       const res = await request(app)
         .post('/api/register')
         .send(newUser)
@@ -519,6 +538,7 @@ describe('Authentication API', () => {
       const newUser = {
         email: 'test@example.com',
         password: 'testpasswordtest',
+        name: 'password verifier',
       };
 
       await request(app).post('/api/register').send(newUser).expect(201);

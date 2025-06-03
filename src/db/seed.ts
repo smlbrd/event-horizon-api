@@ -21,7 +21,8 @@ async function seed({
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         hashed_password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'staff', 'user')) DEFAULT 'user'
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(5) NOT NULL DEFAULT 'user'
       );
     `);
 
@@ -57,10 +58,10 @@ async function seed({
       for (const user of userData) {
         const hashed_password = await hashPassword(user.password);
 
-        userValues.push([user.email, hashed_password, user.role]);
+        userValues.push([user.email, hashed_password, user.name, user.role]);
       }
       const userInsert = format(
-        'INSERT INTO users (email, hashed_password, role) VALUES %L;',
+        'INSERT INTO users (email, hashed_password, name, role) VALUES %L;',
         userValues
       );
       await db.query(userInsert);
