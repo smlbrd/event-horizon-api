@@ -1,6 +1,7 @@
 # Event Horizon API
 
-This API is hosted online [here](https://event-horizon-api.up.railway.app/api/).
+This API is [hosted online here.](https://event-horizon-api.up.railway.app/api/)
+
 The web app it serves is [hosted online here.](https://event-horizon-app.vercel.app/)
 
 > Note: It is a free tier of hosting, so it may take up to a minute to spin up for the first time.
