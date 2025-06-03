@@ -1,5 +1,11 @@
 # Event Horizon API
 
+The Event Horizon API serves data for an events management application. It is built using TypeScript, Node.js and PostgreSQL.
+
+The platform allows users to view a list of available events, create, edit or delete events (with permissions), add or remove attendees for events, and update their RSVPs.
+
+Accounts can be created with Admin, Staff or User roles to allow for different account permissions. Registration and user logins are authenticated using JWT, and several API routes are protected this way.
+
 This API is [hosted online here.](https://event-horizon-api.up.railway.app/api/)
 
 The web app it serves is [hosted online here.](https://event-horizon-app.vercel.app/)
