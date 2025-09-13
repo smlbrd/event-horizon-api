@@ -1,5 +1,5 @@
 import express from 'express';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
 import sinon from 'sinon';
 import request from 'supertest';
 import db from '../db/connection';
@@ -21,7 +21,19 @@ import { authEventAction } from '../middleware/authEventAction';
 import { eventModel } from '../models/eventModel';
 import jwt from 'jsonwebtoken';
 
+const { expect } = chai;
+
 chai.should();
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: {
+      userId: number;
+      role: string;
+      [key: string]: any;
+    };
+  }
+}
 
 after(async () => {
   await db.end();
